@@ -15,10 +15,8 @@
 #endif
 
 
-// boîte de dialogue CAboutDlg utilisée pour la boîte de dialogue 'À propos de' pour votre application
-bool a;
-bool b;
-bool c;
+
+
 
 
 
@@ -75,6 +73,7 @@ void CProjetcppsimuDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT_EQ, m_editZone);
 
+	DDX_Control(pDX, IDC_EDIT_PATH, m_path_text);
 }
 
 BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
@@ -100,6 +99,7 @@ BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CProjetcppsimuDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CProjetcppsimuDlg::OnBnClickedButtonSave)
 	
+	ON_BN_CLICKED(IDC_BUTTON_PATH, &CProjetcppsimuDlg::OnBnClickedButtonPath)
 END_MESSAGE_MAP()
 
 
@@ -325,3 +325,23 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 }
 
 
+
+void CProjetcppsimuDlg::OnBnClickedButtonPath()
+{
+	// Créer une boîte de dialogue de fichier pour ouvrir un fichier
+	CFileDialog fileDlg(
+		TRUE,                       // TRUE = Open dialog, FALSE = Save dialog
+		_T("txt"),                  // Default file extension
+		NULL,                       // Default file name
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		_T("Text Files (*.txt)|*.txt|All Files (*.*)|*.*||") // Filter
+	);
+
+	// Display the dialog
+	if (fileDlg.DoModal() == IDOK)
+	{
+		CString filePath = fileDlg.GetPathName();  // Full path of the chosen file
+		m_path_text.SetWindowText(filePath);  // Set the path in the edit control
+		// Example: show the selected file path 
+	}
+}

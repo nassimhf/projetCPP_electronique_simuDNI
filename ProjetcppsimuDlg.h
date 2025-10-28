@@ -55,4 +55,6 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButtonSave();
 	
+	CEdit m_path_text;
+	afx_msg void OnBnClickedButtonPath();
 };
