@@ -9,6 +9,7 @@
 #include "afxdialogex.h"
 #include <string>
 #include <iostream>
+#include "MainScreen.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -194,7 +195,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonB() ////////////
 {
 	CString currentText;
 	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("B");                  // ajoute "A" à la suite
+	currentText += _T("Y");                  // ajoute "A" à la suite
 	m_editZone.SetWindowText(currentText);
 }
 
@@ -202,7 +203,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonA2() ////////////
 {
 	CString currentText;
 	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("A");                  // ajoute "A" à la suite
+	currentText += _T("X");                  // ajoute "A" à la suite
 	m_editZone.SetWindowText(currentText);
 	
 	
@@ -216,7 +217,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonC() /////////////
 {
 	CString currentText;
 	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("C");                  // ajoute "A" à la suite
+	currentText += _T("Z");                  // ajoute "A" à la suite
 	m_editZone.SetWindowText(currentText);
 }
 
@@ -311,17 +312,31 @@ void CProjetcppsimuDlg::OnBnClickedOk()
 
 void CProjetcppsimuDlg::OnBnClickedButtonSave()
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);  // récupère le texte
+	CString expression;
+	m_editZone.GetWindowText(expression);  // récupère le texte
 
 	// Conversion en std::string
-	CT2CA pszConvertedString(currentText);
-	std::string EQtxt(pszConvertedString);
+	CT2CA exprConverted(expression);
+	std::string EXP_str(exprConverted);
 
-	// Maintenant tu peux utiliser textString partout
-	AfxMessageBox(CA2T(EQtxt.c_str()));
+	CString file_path;
+	m_editZone.GetWindowText(file_path);  // récupère le texte
 
+	// Conversion en std::string
+	CT2CA filePathConverted(file_path);
+	std::string FILE_str(filePathConverted);
+
+
+	MainScreen mainScreen;
+	mainScreen.m_expr = EXP_str;
+	mainScreen.m_path = FILE_str;
+
+
+	EndDialog(IDCANCEL); // Ferme la boîte de dialogue actuelle
+
+	mainScreen.DoModal();
 	
+
 }
 
 
