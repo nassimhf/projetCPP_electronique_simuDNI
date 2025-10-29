@@ -9,7 +9,7 @@
 
 SchemaDrawer::SchemaDrawer(CClientDC* deviceContext)
     : dc(deviceContext), currentX(100), currentY(200),
-    gateSpacing(200), verticalSpacing(140), gateLevel(0), maxLevel(0){
+    gateSpacing(200), verticalSpacing(150), gateLevel(0), maxLevel(0){
 	
 }
 

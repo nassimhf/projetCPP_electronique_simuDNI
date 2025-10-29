@@ -62,9 +62,7 @@ void NotGate::draw(CClientDC& dc)
     dc.TextOutW(textX, textY, label);
     dc.SelectObject(oldFont);
 
-    // --- Afficher l'état de l'entrée ---
-    GraphicsUtils gfxUtils;
-    gfxUtils.DrawBinaryInput(&dc, entree, inputPoint);
+
 }
 
 // Getters/Setters

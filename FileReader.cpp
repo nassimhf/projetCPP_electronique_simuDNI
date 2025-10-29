@@ -1,12 +1,30 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "FileReader.h"
-
-
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <cctype>
 
 bool FileReader::readFile(const std::string& filePath)
 {
-    std::ifstream file(filePath);
+
+
+
+    // Convertir std::string â†’ CString
+    CString path(filePath.c_str());
+
+    // Remplacer les backslashes \ par des slashes /
+    path.Replace(_T("\\"), _T("/"));
+
+    
+
+    std::ifstream file(path);
     if (!file.is_open()) {
+
+        CString msg;
+        msg.Format(_T("ERROR Reading file = %d"));  // %d convertit true â†’ 1, false â†’ 0
+
+        AfxMessageBox(msg);
         std::cerr << "Erreur : impossible d'ouvrir le fichier " << filePath << std::endl;
         return false;
     }
@@ -15,25 +33,36 @@ bool FileReader::readFile(const std::string& filePath)
     InputDataVector currentPoint = { 0, 0, 0 };
 
     while (std::getline(file, line)) {
-        // Supprimer les espaces et sauts de ligne inutiles
+        // Supprimer les espaces superflus
         if (line.empty()) continue;
 
+        // Enlever les espaces au dÃ©but et Ã  la fin
+        line.erase(0, line.find_first_not_of(" \t\r\n"));
+        line.erase(line.find_last_not_of(" \t\r\n") + 1);
+
+        // VÃ©rifier si la ligne contient une variable X, Y, Z
         std::stringstream ss(line);
         std::string var;
         char eq;
         int value;
 
-        // Exemple de ligne : "X = 1"
         if (ss >> var >> eq >> value) {
             if (var == "X") currentPoint.X = value;
             else if (var == "Y") currentPoint.Y = value;
             else if (var == "Z") currentPoint.Z = value;
         }
         else {
-            // Si ce n’est pas une ligne de variable, c’est probablement un délai
-            std::string delay = line;
-            delays.push_back(delay);
-            points.push_back(currentPoint);  // Sauvegarder l’état complet (X,Y,Z) avant le délai
+            // Sinon, câ€™est probablement une ligne de dÃ©lai (ex: "100ns")
+            std::string numStr;
+            for (char c : line) {
+                if (std::isdigit(c)) numStr += c; // Ne garder que les chiffres
+            }
+
+            if (!numStr.empty()) {
+                int delayValue = std::stoi(numStr);
+                delays.push_back(delayValue);
+                points.push_back(currentPoint);
+            }
         }
     }
 

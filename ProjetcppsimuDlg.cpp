@@ -101,6 +101,7 @@ BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE, &CProjetcppsimuDlg::OnBnClickedButtonSave)
 	
 	ON_BN_CLICKED(IDC_BUTTON_PATH, &CProjetcppsimuDlg::OnBnClickedButtonPath)
+	ON_EN_CHANGE(IDC_EDIT_PATH, &CProjetcppsimuDlg::OnEnChangeEditPath)
 END_MESSAGE_MAP()
 
 
@@ -320,7 +321,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	std::string EXP_str(exprConverted);
 
 	CString file_path;
-	m_editZone.GetWindowText(file_path);  // récupère le texte
+	m_path_text.GetWindowText(file_path);  // récupère le texte
 
 	// Conversion en std::string
 	CT2CA filePathConverted(file_path);
@@ -357,6 +358,17 @@ void CProjetcppsimuDlg::OnBnClickedButtonPath()
 	{
 		CString filePath = fileDlg.GetPathName();  // Full path of the chosen file
 		m_path_text.SetWindowText(filePath);  // Set the path in the edit control
+		
 		// Example: show the selected file path 
 	}
+}
+
+void CProjetcppsimuDlg::OnEnChangeEditPath()
+{
+	// TODO:  S'il s'agit d'un contrôle RICHEDIT, le contrôle ne
+	// envoyez cette notification sauf si vous substituez CDialogEx::OnInitDialog()
+	// fonction et appelle CRichEditCtrl().SetEventMask()
+	// avec l'indicateur ENM_CHANGE ajouté au masque grâce à l'opérateur OR.
+
+	// TODO:  Ajoutez ici le code de votre gestionnaire de notification de contrôle
 }

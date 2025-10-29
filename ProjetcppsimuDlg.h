@@ -12,6 +12,7 @@ class CProjetcppsimuDlg : public CDialogEx
 public:
 	CProjetcppsimuDlg(CWnd* pParent = nullptr);	// constructeur standard
 	CEdit m_editZone;
+	CEdit m_path_text;
 	
 
 // Données de boîte de dialogue
@@ -55,6 +56,7 @@ public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButtonSave();
 	
-	CEdit m_path_text;
+	
 	afx_msg void OnBnClickedButtonPath();
+	afx_msg void OnEnChangeEditPath();
 };

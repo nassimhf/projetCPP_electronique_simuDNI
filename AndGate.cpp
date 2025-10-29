@@ -57,9 +57,9 @@ void AndGate::draw(CClientDC& dc)
     dc.TextOutW(textX, textY, label);
     dc.SelectObject(oldFont);
 
-    GraphicsUtils gfxUtils;
-    gfxUtils.DrawBinaryInput(&dc, entre1, inputPoint1);
-    gfxUtils.DrawBinaryInput(&dc, entre2, inputPoint2);
+
+  
+ 
 }
 
 // Getters/Setters

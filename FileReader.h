@@ -12,9 +12,9 @@ public:
     bool readFile(const std::string& filePath);
 
     const std::vector<InputDataVector>& getPoints() const { return points; }
-    const std::vector<std::string>& getDelays() const { return delays; }
+    const std::vector<int>& getDelays() const { return delays; }
 
 private:
     std::vector<InputDataVector> points;
-    std::vector<std::string> delays;
+    std::vector<int> delays;
 };

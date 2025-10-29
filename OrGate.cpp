@@ -82,10 +82,6 @@ void OrGate::draw(CClientDC& dc)
     outputPoint = CPoint(startPoint.x + 95, startPoint.y + 44);
 
 
-    GraphicsUtils gfxUtils;
-
-    gfxUtils.DrawBinaryInput(&dc, entre1, inputPoint1,1);
-    gfxUtils.DrawBinaryInput(&dc, entre2, inputPoint2,1);
 }
 
 // Getters/Setters

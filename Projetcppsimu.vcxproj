@@ -184,6 +184,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AndGate.h" />
+    <ClInclude Include="Chronogram.h" />
     <ClInclude Include="ExpressionParser.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="framework.h" />
@@ -203,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AndGate.cpp" />
+    <ClCompile Include="Chronogram.cpp" />
     <ClCompile Include="ExpressionParser.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="GraphicsUtils.cpp" />

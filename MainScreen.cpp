@@ -17,11 +17,7 @@ IMPLEMENT_DYNAMIC(MainScreen, CDialogEx)
 MainScreen::MainScreen(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DIALOG1, pParent)
 {
-
-
-
-
-
+	
 }
 
 BOOL MainScreen::OnInitDialog()
@@ -47,7 +43,6 @@ BOOL MainScreen::OnInitDialog()
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
-
 	// Définir l'icône de cette boîte de dialogue.  L'infrastructure effectue cela automatiquement
 	//  lorsque la fenêtre principale de l'application n'est pas une boîte de dialogue
 	
@@ -63,23 +58,36 @@ void MainScreen::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 }
-
+void MainScreen::SetChronogramData(vector<bool> states, vector<int> times)
+{
+	chrono.setSignalName(_T("Signal A"));
+	chrono.setPosition(100, 150);
+	chrono.setHeight(60);
+	chrono.setTimeScale(0.5f);  // 0.5 pixel par ms
+	chrono.setStates(states, times);
+}
 
 BEGIN_MESSAGE_MAP(MainScreen, CDialogEx)
 	ON_WM_PAINT()  // AJOUTER CETTE LIGNE - TRÈS IMPORTANT !
-
 END_MESSAGE_MAP()
 
 void MainScreen::OnPaint()
 {
+	
 	CDialogEx::OnPaint();
-
 	CClientDC dc(this); // Utilise CPaintDC pour OnPaint
 
+	vector<InputDataVector> inputData;
+	vector<bool> resultVector;
+	vector<int> times;
 	// Ou si tu veux vraiment CClientDC :
 	// CClientDC dc(this);
+	FileReader fileReader;
+	fileReader.readFile(m_path);
+	times = fileReader.getDelays();
+	inputData = fileReader.getPoints();
 
-	// Dessiner ton schéma ici
+	// Dessiner  schéma
 	SchemaDrawer drawer(&dc);
 	if (!m_expr.empty())
 	{
@@ -87,14 +95,21 @@ void MainScreen::OnPaint()
 		SchemaDrawer drawer(&dc);
 		drawer.drawSchema(m_expr);
 	}
-	
 
+	for (auto input : inputData)
+	{
+		bool result = drawer.evaluateSchema(m_expr, input);
+		resultVector.push_back(result);
+	}
+
+	// Configurer et afficher
+	Chronogram chrono(_T("CLK"), 100, 600);
+	chrono.setTimeScale(0.8f);  // 0.5 pixel = 1ms
+	chrono.setStates(resultVector, times);
+	chrono.draw(&dc);
 }
 // gestionnaires de messages de MainScreen
-
 void MainScreen::OnBnClickedRestart()
 {
 	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
-
-
 }

@@ -101,11 +101,7 @@ void XorGate::draw(CClientDC& dc)
 
 
    
-	// --- Texte "XOR" centré ---
-
-	GraphicsUtils gfxUtils;
-	gfxUtils.DrawBinaryInput(&dc, entre1, inputPoint1,2);
-	gfxUtils.DrawBinaryInput(&dc, entre2, inputPoint2,2);
+	
 
 }
 // Getters/Setters

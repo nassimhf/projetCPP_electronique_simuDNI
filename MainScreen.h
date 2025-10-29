@@ -1,6 +1,7 @@
 #pragma once
 #include "afxdialogex.h"
 #include <string>
+#include "Chronogram.h"
 using namespace std;
 
 // boîte de dialogue de MainScreen
@@ -13,6 +14,8 @@ public:
 	MainScreen(CWnd* pParent = nullptr);   // constructeur standard
 	virtual BOOL OnInitDialog();
 	virtual ~MainScreen();
+	void SetChronogramData(vector<bool> states, vector<int> times);
+	Chronogram chrono;
 	string m_expr;
 	string m_path;
 
