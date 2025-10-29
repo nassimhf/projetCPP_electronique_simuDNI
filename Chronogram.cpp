@@ -1,26 +1,27 @@
 // Chronogram.cpp
 #include "pch.h"
 #include "Chronogram.h"
+#include "Colors.h"
 
 Chronogram::Chronogram()
     : signalName(_T("Signal")), startX(50), startY(100),
     height(60), timeScale(1.0f) {
 
     // Couleurs par défaut
-    highColor = RGB(207, 0, 0);      // Rouge 207
-    lowColor = RGB(0, 0, 207);       // Bleu 207
-    gridColor = RGB(200, 200, 200);  // Gris clair
-    textColor = RGB(0, 0, 0);        // Noir
+    highColor = APP_COLOR_HIGH;     // Vert pour état haut
+    lowColor = APP_COLOR_LOW;       // Gris foncé pour état bas
+    gridColor = RGB(189, 195, 199); // Gris clair
+    textColor = APP_COLOR_TEXT_PRIMARY;
 }
 
 Chronogram::Chronogram(CString name, int x, int y)
     : signalName(name), startX(x), startY(y),
     height(60), timeScale(1.0f) {
 
-    highColor = RGB(207, 0, 0);
-    lowColor = RGB(0, 0, 207);
-    gridColor = RGB(200, 200, 200);
-    textColor = RGB(0, 0, 0);
+    highColor = APP_COLOR_HIGH;     // Vert pour état haut
+    lowColor = APP_COLOR_LOW;       // Gris foncé pour état bas
+    gridColor = RGB(189, 195, 199); // Gris clair
+    textColor = APP_COLOR_TEXT_PRIMARY;
 }
 
 void Chronogram::addState(bool state, int timeMs) {

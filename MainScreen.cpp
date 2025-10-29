@@ -8,6 +8,7 @@
 #include "SchemaDrawer.h"
 #include "FileReader.h"
 #include "resource.h"
+#include "Colors.h"
 
 
 // boîte de dialogue de MainScreen
@@ -25,7 +26,7 @@ BOOL MainScreen::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// Ajouter l'élément de menu "À propos de..." au menu Système.
-
+	SetBackgroundColor(APP_COLOR_LIGHT);
 	// IDM_ABOUTBOX doit se trouver dans la plage des commandes système.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);

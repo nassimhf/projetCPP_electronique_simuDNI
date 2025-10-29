@@ -13,7 +13,7 @@ public:
 	CProjetcppsimuDlg(CWnd* pParent = nullptr);	// constructeur standard
 	CEdit m_editZone;
 	CEdit m_path_text;
-	
+	afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 
 // Données de boîte de dialogue
 #ifdef AFX_DESIGN_TIME
@@ -59,4 +59,7 @@ public:
 	
 	afx_msg void OnBnClickedButtonPath();
 	afx_msg void OnEnChangeEditPath();
+	afx_msg void OnBnClickedCancel();
+
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };

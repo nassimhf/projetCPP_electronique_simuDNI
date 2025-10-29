@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include "MainScreen.h"
+#include "Colors.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -85,8 +86,8 @@ BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_A2, &CProjetcppsimuDlg::OnBnClickedButtonA2)
 
 	
-
-
+	ON_WM_DRAWITEM()
+	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDC_BUTTON_C, &CProjetcppsimuDlg::OnBnClickedButtonC)
 	ON_EN_CHANGE(IDC_EDIT_EQ, &CProjetcppsimuDlg::OnEnChangeEditEq)
 	ON_BN_CLICKED(IDC_BUTTON_OR, &CProjetcppsimuDlg::OnBnClickedButtonOr)
@@ -102,6 +103,7 @@ BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
 	
 	ON_BN_CLICKED(IDC_BUTTON_PATH, &CProjetcppsimuDlg::OnBnClickedButtonPath)
 	ON_EN_CHANGE(IDC_EDIT_PATH, &CProjetcppsimuDlg::OnEnChangeEditPath)
+	ON_BN_CLICKED(IDCANCEL, &CProjetcppsimuDlg::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
@@ -112,6 +114,22 @@ BOOL CProjetcppsimuDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// Ajouter l'élément de menu "À propos de..." au menu Système.
+	SetBackgroundColor(APP_COLOR_LIGHT);
+
+
+
+
+
+	int buttonIDs[] = { IDC_BUTTON1,IDC_BUTTON_DEL,IDCANCEL, IDC_BUTTON_A2, IDC_BUTTON_AND,IDC_BUTTON_B,IDC_BUTTON_C,IDC_BUTTON_CLEAR,IDC_BUTTON_XOR,IDC_BUTTON_NOT,IDC_BUTTON_SAVE,IDC_BUTTON13,IDC_BUTTON_OR,IDC_BUTTON_OP,IDC_BUTTON_CP};
+	for (int id : buttonIDs)
+	{
+		CButton* pBtn = (CButton*)GetDlgItem(id);
+		if (pBtn)
+			pBtn->ModifyStyle(0, BS_OWNERDRAW);
+	}
+
+
+
 
 	// IDM_ABOUTBOX doit se trouver dans la plage des commandes système.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
@@ -139,6 +157,70 @@ BOOL CProjetcppsimuDlg::OnInitDialog()
 	// TODO: ajoutez ici une initialisation supplémentaire
 
 	return TRUE;  // retourne TRUE, sauf si vous avez défini le focus sur un contrôle
+}
+
+HBRUSH CProjetcppsimuDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	if (pWnd->GetDlgCtrlID() == IDC_EDIT_EQ) // Remplace par ton ID
+	{
+		pDC->SetTextColor(RGB(50, 50, 50));       // couleur du texte
+		pDC->SetBkColor(RGB(230, 230, 230));      // couleur du fond
+		static CBrush brush(RGB(230, 230, 230));  // brosse pour le fond
+		return brush;
+	}
+
+	return hbr;
+}
+
+void CProjetcppsimuDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct)
+{
+	CDC dc;
+	dc.Attach(lpDrawItemStruct->hDC);
+	CRect rect = lpDrawItemStruct->rcItem;
+
+	bool isPressed = (lpDrawItemStruct->itemState & ODS_SELECTED);
+	bool isFocused = (lpDrawItemStruct->itemState & ODS_FOCUS);
+
+	// --- Définir les couleurs ---
+	COLORREF bgColor = RGB(245, 247, 250);  // fond par défaut clair
+	COLORREF borderColor = RGB(200, 200, 200);
+	COLORREF textColor = APP_COLOR_TEXT_PRIMARY;
+
+	if (isPressed)
+	{
+		bgColor = APP_COLOR_PRIMARY;      // fond bleu foncé
+		textColor = APP_COLOR_WHITE;
+	}
+	else if (isFocused)
+	{
+		bgColor = RGB(225, 235, 245);     // léger bleu clair
+		borderColor = APP_COLOR_SECONDARY;
+	}
+
+	// --- Ombre subtile (effet relief) ---
+	CRect shadowRect = rect;
+	shadowRect.OffsetRect(2, 2);
+	dc.FillSolidRect(shadowRect, RGB(220, 220, 220)); // ombre grise douce
+
+	// --- Fond du bouton ---
+	dc.FillSolidRect(rect, bgColor);
+
+	// --- Bordure arrondie très fine ---
+	CPen borderPen(PS_SOLID, 1, borderColor);
+	dc.SelectObject(&borderPen);
+	dc.RoundRect(rect, CPoint(8, 8));
+
+	// --- Texte centré ---
+	CString text;
+	GetDlgItem(nIDCtl)->GetWindowText(text);
+	dc.SetBkMode(TRANSPARENT);
+	dc.SetTextColor(textColor);
+	dc.SelectObject(GetFont());
+	dc.DrawText(text, rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+	dc.Detach();
 }
 
 void CProjetcppsimuDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -371,4 +453,10 @@ void CProjetcppsimuDlg::OnEnChangeEditPath()
 	// avec l'indicateur ENM_CHANGE ajouté au masque grâce à l'opérateur OR.
 
 	// TODO:  Ajoutez ici le code de votre gestionnaire de notification de contrôle
+}
+
+void CProjetcppsimuDlg::OnBnClickedCancel()
+{
+	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
+	CDialogEx::OnCancel();
 }
