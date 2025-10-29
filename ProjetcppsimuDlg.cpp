@@ -11,6 +11,7 @@
 #include <iostream>
 #include "MainScreen.h"
 #include "Colors.h"
+#include <atlimage.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -116,8 +117,9 @@ BOOL CProjetcppsimuDlg::OnInitDialog()
 	// Ajouter l'élément de menu "À propos de..." au menu Système.
 	SetBackgroundColor(APP_COLOR_LIGHT);
 
+	
 
-
+	
 
 
 	int buttonIDs[] = { IDC_BUTTON1,IDC_BUTTON_DEL,IDCANCEL, IDC_BUTTON_A2, IDC_BUTTON_AND,IDC_BUTTON_B,IDC_BUTTON_C,IDC_BUTTON_CLEAR,IDC_BUTTON_XOR,IDC_BUTTON_NOT,IDC_BUTTON_SAVE,IDC_BUTTON13,IDC_BUTTON_OR,IDC_BUTTON_OP,IDC_BUTTON_CP};
@@ -223,6 +225,9 @@ void CProjetcppsimuDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct
 	dc.Detach();
 }
 
+
+
+
 void CProjetcppsimuDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
@@ -243,10 +248,12 @@ void CProjetcppsimuDlg::OnSysCommand(UINT nID, LPARAM lParam)
 void CProjetcppsimuDlg::OnPaint()
 {
 
+
+	CPaintDC dc(this);
+	
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // contexte de périphérique pour la peinture
-
+	
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
 		// Centrer l'icône dans le rectangle client

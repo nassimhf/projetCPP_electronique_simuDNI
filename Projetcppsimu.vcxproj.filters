@@ -132,9 +132,15 @@
     <None Include="res\Projetcppsimu.rc2">
       <Filter>Fichiers de ressources</Filter>
     </None>
+    <None Include="resource.hm">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\Projetcppsimu.ico">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+    <Image Include="..\..\..\Desktop\logo.bmp">
       <Filter>Fichiers de ressources</Filter>
     </Image>
   </ItemGroup>

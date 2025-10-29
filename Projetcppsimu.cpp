@@ -7,6 +7,7 @@
 #include "Projetcppsimu.h"
 #include "ProjetcppsimuDlg.h"
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -51,6 +52,7 @@ BOOL CProjetcppsimuApp::InitInstance()
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinApp::InitInstance();
+
 
 
 	AfxEnableControlContainer();

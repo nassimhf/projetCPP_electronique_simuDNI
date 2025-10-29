@@ -230,9 +230,11 @@
     <ResourceCompile Include="Projetcppsimu.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resource.hm" />
     <None Include="res\Projetcppsimu.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\Desktop\logo.bmp" />
     <Image Include="res\Projetcppsimu.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
