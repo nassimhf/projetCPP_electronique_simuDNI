@@ -401,30 +401,34 @@ void CProjetcppsimuDlg::OnBnClickedOk()
 
 void CProjetcppsimuDlg::OnBnClickedButtonSave()
 {
-	CString expression;
-	m_editZone.GetWindowText(expression);  // récupère le texte
+		CString expression;
+		m_editZone.GetWindowText(expression);
+		CT2CA exprConverted(expression);
+		std::string EXP_str(exprConverted);
 
-	// Conversion en std::string
-	CT2CA exprConverted(expression);
-	std::string EXP_str(exprConverted);
+		CString file_path;
+		m_path_text.GetWindowText(file_path);
+		CT2CA filePathConverted(file_path);
+		std::string FILE_str(filePathConverted);
 
-	CString file_path;
-	m_path_text.GetWindowText(file_path);  // récupère le texte
+		// Masquer au lieu de fermer
+		ShowWindow(SW_HIDE);
 
-	// Conversion en std::string
-	CT2CA filePathConverted(file_path);
-	std::string FILE_str(filePathConverted);
+		MainScreen mainScreen;
+		mainScreen.m_expr = EXP_str;
+		mainScreen.m_path = FILE_str;
 
+		INT_PTR result = mainScreen.DoModal();
 
-	MainScreen mainScreen;
-	mainScreen.m_expr = EXP_str;
-	mainScreen.m_path = FILE_str;
-
-
-	EndDialog(IDCANCEL); // Ferme la boîte de dialogue actuelle
-
-	mainScreen.DoModal();
-	
+		// Quand le 2ème dialogue se ferme
+		if (result == IDCANCEL || result == IDC_Restart)// ID_RETOUR = valeur personnalisée
+		{
+			ShowWindow(SW_SHOW); // Réafficher le 1er dialogue
+		}
+		else
+		{
+			EndDialog(IDOK); // Fermer complètement si terminé
+		}
 
 }
 

@@ -143,5 +143,11 @@
     <Image Include="..\..\..\Desktop\logo.bmp">
       <Filter>Fichiers de ressources</Filter>
     </Image>
+    <Image Include="..\dnils.ico">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+    <Image Include="..\logo.bmp">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

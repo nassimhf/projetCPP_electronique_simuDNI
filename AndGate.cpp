@@ -34,7 +34,7 @@ void AndGate::draw(CClientDC& dc)
 
     // Créer le pinceau et le stylo avec des lignes plus épaisses
     CBrush fillBrush(APP_COLOR_GATE_FILL);
-    CPen borderPen(PS_SOLID, 4, APP_COLOR_GATE_BORDER); // Ligne plus épaisse (4 au lieu de 2)
+    CPen borderPen(PS_SOLID, 1, APP_COLOR_GATE_BORDER); // Ligne plus épaisse (4 au lieu de 2)
 
     CBrush* oldBrush = dc.SelectObject(&fillBrush);
     CPen* oldPen = dc.SelectObject(&borderPen);
@@ -56,18 +56,6 @@ void AndGate::draw(CClientDC& dc)
     dc.Arc(ellipseLeft, ellipseTop, ellipseRight, ellipseBottom,
         arcPtBas.x, arcPtBas.y, arcPtHaut.x, arcPtHaut.y);
 
-    // Texte du symbole
-    CFont font;
-    font.CreatePointFont(140, _T("Arial Bold"));
-    CFont* oldFont = dc.SelectObject(&font);
-    dc.SetTextColor(APP_COLOR_GATE_TEXT);
-    dc.SetBkMode(TRANSPARENT);
-    dc.TextOut(startPoint.x + 30, startPoint.y + 28, _T("&"));
-
-    // Restaurer les objets GDI
-    dc.SelectObject(oldFont);
-    dc.SelectObject(oldBrush);
-    dc.SelectObject(oldPen);
 }
 
 // Getters/Setters

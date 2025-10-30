@@ -70,6 +70,7 @@ void MainScreen::SetChronogramData(vector<bool> states, vector<int> times)
 
 BEGIN_MESSAGE_MAP(MainScreen, CDialogEx)
 	ON_WM_PAINT()  // AJOUTER CETTE LIGNE - TRÈS IMPORTANT !
+	ON_BN_CLICKED(IDC_RETOUR, &MainScreen::OnBnClickedRetour)
 END_MESSAGE_MAP()
 
 void MainScreen::OnPaint()
@@ -112,5 +113,12 @@ void MainScreen::OnPaint()
 // gestionnaires de messages de MainScreen
 void MainScreen::OnBnClickedRestart()
 {
+
+	EndDialog(IDCANCEL); // ou EndDialog(ID_RETOUR);
 	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
+}
+void MainScreen::OnBnClickedRetour()
+{
+	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
+	EndDialog(IDCANCEL); // ou EndDialog(ID_RETOUR);
 }

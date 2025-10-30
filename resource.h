@@ -15,6 +15,7 @@
 #define IDB_BITMAP2                     138
 #define IDC_BUTTON_B                    1000
 #define IDC_BUTTON_A2                   1001
+#define IDC_BUTTON_A3                   1002
 #define IDC_BUTTON_C                    1003
 #define IDC_EDIT_EQ                     1004
 #define IDC_BUTTON_OR                   1005
@@ -28,6 +29,7 @@
 #define IDC_BUTTON_SAVE                 1013
 #define IDC_BUTTON13                    1014
 #define IDC_BUTTON_LOAD                 1014
+#define IDC_RETOUR                      1014
 #define IDC_EDIT_PATH                   1015
 #define IDC_BUTTON1                     1016
 #define IDC_BUTTON_PATH                 1016
