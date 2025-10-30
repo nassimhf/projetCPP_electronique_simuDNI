@@ -12,6 +12,7 @@
 #include "MainScreen.h"
 #include "Colors.h"
 #include <atlimage.h>
+#include "ExpressionParser.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -401,35 +402,49 @@ void CProjetcppsimuDlg::OnBnClickedOk()
 
 void CProjetcppsimuDlg::OnBnClickedButtonSave()
 {
-		CString expression;
-		m_editZone.GetWindowText(expression);
-		CT2CA exprConverted(expression);
-		std::string EXP_str(exprConverted);
+	CString expression;
+	m_editZone.GetWindowText(expression);
 
-		CString file_path;
-		m_path_text.GetWindowText(file_path);
-		CT2CA filePathConverted(file_path);
-		std::string FILE_str(filePathConverted);
+	// ✅ VÉRIFICATION AVANT DE CONTINUER
+	if (expression.IsEmpty()) {
+		AfxMessageBox(_T("Veuillez entrer une expression logique !"), MB_ICONWARNING | MB_OK);
+		return;
+	}
 
-		// Masquer au lieu de fermer
-		ShowWindow(SW_HIDE);
+	CT2CA exprConverted(expression);
+	std::string EXP_str(exprConverted);
 
-		MainScreen mainScreen;
-		mainScreen.m_expr = EXP_str;
-		mainScreen.m_path = FILE_str;
+	// ✅ TESTER L'EXPRESSION
+	ExpressionParser testParser(EXP_str);
+	LogicExpression* testExpr = testParser.parse();
 
-		INT_PTR result = mainScreen.DoModal();
+	if (!testParser.isValid() || !testExpr) {
+		CString errorMsg(testParser.getError().c_str());
+		AfxMessageBox(_T("Erreur dans l'expression :\n") + errorMsg, MB_ICONERROR | MB_OK);
+		return;
+	}
 
-		// Quand le 2ème dialogue se ferme
-		if (result == IDCANCEL || result == IDC_Restart)// ID_RETOUR = valeur personnalisée
-		{
-			ShowWindow(SW_SHOW); // Réafficher le 1er dialogue
-		}
-		else
-		{
-			EndDialog(IDOK); // Fermer complètement si terminé
-		}
+	delete testExpr; // Libérer la mémoire du test
 
+	CString file_path;
+	m_path_text.GetWindowText(file_path);
+	CT2CA filePathConverted(file_path);
+	std::string FILE_str(filePathConverted);
+
+	ShowWindow(SW_HIDE);
+
+	MainScreen mainScreen;
+	mainScreen.m_expr = EXP_str;
+	mainScreen.m_path = FILE_str;
+
+	INT_PTR result = mainScreen.DoModal();
+
+	if (result == IDCANCEL) {
+		ShowWindow(SW_SHOW);
+	}
+	else {
+		EndDialog(IDOK);
+	}
 }
 
 

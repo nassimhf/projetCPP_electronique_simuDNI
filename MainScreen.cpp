@@ -21,6 +21,38 @@ MainScreen::MainScreen(CWnd* pParent /*=nullptr*/)
 	
 }
 
+void DrawSeparatorWithLabel(CDC* dc, int y, int width, CString label) {
+	// Ligne de séparation
+	CPen pen(PS_SOLID, 2, RGB(70, 130, 180)); // Bleu acier
+	CPen* oldPen = dc->SelectObject(&pen);
+
+	// Mesurer le texte
+	CFont font;
+	font.CreatePointFont(100, _T("Arial"));
+	CFont* oldFont = dc->SelectObject(&font);
+
+	CSize textSize = dc->GetTextExtent(label);
+	int textX =   100;
+
+	// Ligne gauche
+	dc->MoveTo(10, y);
+	dc->LineTo(textX - 10, y);
+
+	// Texte au centre
+	dc->SetBkMode(TRANSPARENT);
+	dc->SetTextColor(RGB(70, 130, 180));
+	dc->TextOut(textX, y - textSize.cy / 2, label);
+
+	// Ligne droite
+	dc->MoveTo(textX + textSize.cx + 10, y);
+	dc->LineTo(width - 10, y);
+
+	dc->SelectObject(oldFont);
+	dc->SelectObject(oldPen);
+}
+
+
+
 BOOL MainScreen::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -78,6 +110,17 @@ void MainScreen::OnPaint()
 	
 	CDialogEx::OnPaint();
 	CClientDC dc(this); // Utilise CPaintDC pour OnPaint
+	CRect rect;
+	GetClientRect(&rect);
+
+	int separatorY = rect.Height() / 2 + 100;
+	DrawSeparatorWithLabel(&dc, separatorY, rect.Width()- 20, _T("CHRONOGRAMME"));
+
+
+
+
+	int separatorY2 = 60;
+	DrawSeparatorWithLabel(&dc, separatorY2, rect.Width() - 20, _T("SCHEMA"));
 
 	vector<InputDataVector> inputData;
 	vector<bool> resultVector;
@@ -105,7 +148,7 @@ void MainScreen::OnPaint()
 	}
 
 	// Configurer et afficher
-	Chronogram chrono(_T("CLK"), 100, 600);
+	Chronogram chrono(_T("CLK"), 100, 650);
 	chrono.setTimeScale(0.8f);  // 0.5 pixel = 1ms
 	chrono.setStates(resultVector, times);
 	chrono.draw(&dc);

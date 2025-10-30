@@ -15,7 +15,6 @@
 #define IDB_BITMAP2                     138
 #define IDC_BUTTON_B                    1000
 #define IDC_BUTTON_A2                   1001
-#define IDC_BUTTON_A3                   1002
 #define IDC_BUTTON_C                    1003
 #define IDC_EDIT_EQ                     1004
 #define IDC_BUTTON_OR                   1005
@@ -34,6 +33,7 @@
 #define IDC_BUTTON1                     1016
 #define IDC_BUTTON_PATH                 1016
 #define IDC_Restart                     1016
+#define IDC_DESC                        1019
 
 // Next default values for new objects
 // 
@@ -41,7 +41,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

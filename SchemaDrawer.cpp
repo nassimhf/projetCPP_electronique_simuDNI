@@ -39,18 +39,20 @@ void SchemaDrawer::drawSchema(string expression) {
     ExpressionParser parser(expression);
     LogicExpression* expr = parser.parse();
 
-    if (expr) {
-        // Calculer la profondeur maximale
-        maxLevel = calculateMaxDepth(expr);
-        // Dessiner à partir du niveau 0 (dernière porte)
-        CPoint output  = drawExpression(expr, 0, 300, 0);
-		dc->MoveTo(output);
-		dc->LineTo(CPoint(output.x + 50, output.y));
-
-      //  CBrush* pOldBrush = dc->SelectObject(CBrush::FromHandle((HBRUSH)GetStockObject(NULL_BRUSH))); // pas de remplissage
-      //  dc->Rectangle(currentX-50, currentY-160, output.x+ 100, maxLevel*90 );
-      //  dc->SelectObject(pOldBrush);
+    // VÉRIFICATION D'ERREUR
+    if (!parser.isValid() || !expr) {
+        // Afficher un message d'erreur
+        CString errorMsg(parser.getError().c_str());
+        AfxMessageBox(errorMsg, MB_ICONERROR | MB_OK);
+        return;
     }
+
+    // Calculer la profondeur maximale
+    maxLevel = calculateMaxDepth(expr);
+    // Dessiner à partir du niveau 0 (dernière porte)
+    CPoint output = drawExpression(expr, 0, 300, 0);
+    dc->MoveTo(output);
+    dc->LineTo(CPoint(output.x + 50, output.y));
 }
 
 CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY, int yOffset) {
@@ -74,10 +76,11 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         CFont font;
         font.CreatePointFont(120, _T("Arial"));
         CFont* oldFont = dc->SelectObject(&font);
+        dc->SetBkMode(TRANSPARENT);
 
         CString text(expr->varName.c_str());
         dc->TextOut(fixedX, adjustedY, text);
-
+       
         dc->SelectObject(oldFont);
         return CPoint(fixedX + 20, adjustedY + 10);
        

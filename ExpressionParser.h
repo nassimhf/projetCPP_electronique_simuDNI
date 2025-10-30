@@ -1,33 +1,30 @@
-// ExpressionParser.h
+﻿// ExpressionParser.h
 #ifndef EXPRESSION_PARSER_H
-#define EXPRESSION_PARSER_H
+
 
 #include <string>
 #include <algorithm>
 #include "LogicExpression.h"
 using namespace std;
 
-// Classe pour parser les expressions logiques
 class ExpressionParser {
 private:
     string expression;
-    int pos;
+    size_t pos;
+    string errorMessage;  // ✅ NOUVEAU : stocker le message d'erreur
+    bool hasError;        // ✅ NOUVEAU : indicateur d'erreur
 
-    // Enlever les espaces
     void removeSpaces();
-
-    // Parser une expression compl�te
     LogicExpression* parseExpression();
-
-    // Parser un terme (variable, NOT, ou parenth�se)
     LogicExpression* parseTerm();
-
-    // Extraire l'op�rateur
     string getOperator();
+    bool validateExpression();  // ✅ NOUVEAU : validation
 
 public:
     ExpressionParser(string expr);
     LogicExpression* parse();
+    bool isValid() const { return !hasError; }  // ✅ NOUVEAU
+    string getError() const { return errorMessage; }  // ✅ NOUVEAU
 };
 
 #endif // EXPRESSION_PARSER_H
