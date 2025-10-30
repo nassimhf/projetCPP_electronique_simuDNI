@@ -117,9 +117,8 @@ BOOL CProjetcppsimuDlg::OnInitDialog()
 	// Ajouter l'élément de menu "À propos de..." au menu Système.
 	SetBackgroundColor(APP_COLOR_LIGHT);
 
-	
 
-	
+
 
 
 	int buttonIDs[] = { IDC_BUTTON1,IDC_BUTTON_DEL,IDCANCEL, IDC_BUTTON_A2, IDC_BUTTON_AND,IDC_BUTTON_B,IDC_BUTTON_C,IDC_BUTTON_CLEAR,IDC_BUTTON_XOR,IDC_BUTTON_NOT,IDC_BUTTON_SAVE,IDC_BUTTON13,IDC_BUTTON_OR,IDC_BUTTON_OP,IDC_BUTTON_CP};
