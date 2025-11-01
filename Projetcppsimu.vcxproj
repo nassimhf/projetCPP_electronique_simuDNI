@@ -234,8 +234,7 @@
     <None Include="res\Projetcppsimu.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\Desktop\dnils.ico" />
-    <Image Include="..\res\logo.bmp" />
+    <Image Include="res\logo.bmp" />
     <Image Include="res\Projetcppsimu.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

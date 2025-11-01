@@ -155,10 +155,20 @@ void MainScreen::OnPaint()
 		// Dessiner  schéma
 	
 
-
+	float width = rect.Width()-200;
 	// Configurer et afficher
-	Chronogram chrono(_T("CLK"), 100, 650);
-	chrono.setTimeScale(0.8f);  // 0.5 pixel = 1ms
+	Chronogram chrono(_T("S"), 100, 500);
+	int totaltime = 0;
+	for (int i : times) totaltime += i;
+
+	float timeScale = (width)/ (float)totaltime ;
+	chrono.setTimeScale(timeScale);  // 0.5 pixel = 1ms
+
+
+	CString msg;
+	msg.Format(_T("ERROR Reading file = %f"), timeScale);  // %d convertit true → 1, false → 0
+
+	AfxMessageBox(msg);
 	chrono.setStates(resultVector, times);
 	chrono.draw(&dc);
 }

@@ -68,7 +68,7 @@ void AndGate::draw(CClientDC& dc)
     CString input1(entre1 ? "1" : "0");
     dc.TextOut(inputPoint1.x - 26, inputPoint1.y - 20, input1);
 
-    // CORRECTION: Afficher entre2 (pas input1!)
+   
     CString input2(entre2 ? "1" : "0");
     dc.TextOut(inputPoint2.x - 26, inputPoint2.y - 20, input2);
 
@@ -85,7 +85,7 @@ CPoint AndGate::getOutputPoint() const { return outputPoint; }
 CPoint AndGate::getInputPoint1() const { return inputPoint1; }
 CPoint AndGate::getInputPoint2() const { return inputPoint2; }
 
-// NOUVELLES MÉTHODES
+
 void AndGate::connectInput1Gate(AndGate* gate) {
     inputGate1 = gate;
     isInput1Variable = false;

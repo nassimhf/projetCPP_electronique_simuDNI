@@ -10,9 +10,9 @@ void ExpressionParser::removeSpaces() {
 }
 
 bool ExpressionParser::validateExpression() {
-    // ========================================
-    // 1. VÉRIFICATION FICHIER VIDE
-    // ========================================
+   
+    // VÉRIFICATION FICHIER VIDE
+  
     if (expression.empty()) {
         errorMessage = "ERREUR : Le fichier est vide !\n\nVeuillez entrer une expression logique valide.";
         hasError = true;
@@ -33,9 +33,9 @@ bool ExpressionParser::validateExpression() {
         return false;
     }
 
-    // ========================================
-    // 2. VÉRIFICATION DES CARACTÈRES INVALIDES
-    // ========================================
+   
+    //  VÉRIFICATION DES CARACTÈRES INVALIDES
+  
     for (size_t i = 0; i < expression.length(); i++) {
         char c = expression[i];
 
@@ -83,9 +83,8 @@ bool ExpressionParser::validateExpression() {
         }
     }
 
-    // ========================================
-    // 3. VÉRIFICATION DES VARIABLES (UNIQUEMENT X, Y, Z)
-    // ========================================
+    //  VÉRIFICATION DES VARIABLES (UNIQUEMENT X, Y, Z)
+ 
     string tempExpr = expression;
     // Retirer les mots-clés pour ne garder que les variables
     size_t found;
@@ -122,9 +121,9 @@ bool ExpressionParser::validateExpression() {
         }
     }
 
-    // ========================================
-    // 4. VÉRIFICATION DES PARENTHÈSES ÉQUILIBRÉES
-    // ========================================
+   
+    //  VÉRIFICATION DES PARENTHÈSES ÉQUILIBRÉES
+ 
     int parenthesesCount = 0;
     for (size_t i = 0; i < expression.length(); i++) {
         char c = expression[i];
@@ -150,9 +149,9 @@ bool ExpressionParser::validateExpression() {
         return false;
     }
 
-    // ========================================
-    // 5. VÉRIFICATION DES OPÉRATEURS CONSÉCUTIFS
-    // ========================================
+
+    //  VÉRIFICATION DES OPÉRATEURS CONSÉCUTIFS
+   
     if (expression.find("ANDAND") != string::npos ||
         expression.find("OROR") != string::npos ||
         expression.find("XORXOR") != string::npos ||
@@ -172,9 +171,9 @@ bool ExpressionParser::validateExpression() {
         return false;
     }
 
-    // ========================================
+
     // 6. VÉRIFICATION FIN D'EXPRESSION
-    // ========================================
+  
     // Retirer les espaces de fin
     string trimmedExpr = expression;
     while (!trimmedExpr.empty() && (trimmedExpr.back() == ' ' || trimmedExpr.back() == '\t' ||
@@ -205,9 +204,9 @@ bool ExpressionParser::validateExpression() {
         }
     }
 
-    // ========================================
-    // 7. VÉRIFICATION DÉBUT D'EXPRESSION
-    // ========================================
+
+    //  VÉRIFICATION DÉBUT D'EXPRESSION
+ 
     // Retirer les espaces de début
     size_t startPos = 0;
     while (startPos < trimmedExpr.length() &&
@@ -239,9 +238,9 @@ bool ExpressionParser::validateExpression() {
         }
     }
 
-    // ========================================
-    // 8. VÉRIFICATION PARENTHÈSES VIDES
-    // ========================================
+
+    //  VÉRIFICATION PARENTHÈSES VIDES
+
     if (expression.find("()") != string::npos) {
         errorMessage = "ERREUR : Parenthèses vides détectées !\n\n";
         errorMessage += "Les parenthèses doivent contenir une expression valide.";
@@ -253,14 +252,14 @@ bool ExpressionParser::validateExpression() {
 }
 
 LogicExpression* ExpressionParser::parse() {
-    // ✅ VALIDATION AVANT LE PARSING
+    // VALIDATION AVANT LE PARSING
     if (!validateExpression()) {
         return nullptr;
     }
 
     LogicExpression* result = parseExpression();
 
-    // ✅ Vérifier si le parsing a échoué
+    //  Vérifier si le parsing a échoué
     if (!result) {
         if (errorMessage.empty()) {
             errorMessage = "ERREUR : Erreur de syntaxe dans l'expression !\n\n";
@@ -270,7 +269,7 @@ LogicExpression* ExpressionParser::parse() {
         return nullptr;
     }
 
-    // ✅ Vérifier si toute l'expression a été parsée
+    // Vérifier si toute l'expression a été parsée
     if (pos < expression.length()) {
         errorMessage = "ERREUR : Expression invalide !\n\n";
         errorMessage += "Caractères non reconnus à la position ";
