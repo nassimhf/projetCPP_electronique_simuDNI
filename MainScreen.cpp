@@ -83,6 +83,7 @@ BOOL MainScreen::OnInitDialog()
 
 	return TRUE;  // retourne TRUE, sauf si vous avez défini le focus sur un contrôle
 }
+
 MainScreen::~MainScreen()
 {
 }

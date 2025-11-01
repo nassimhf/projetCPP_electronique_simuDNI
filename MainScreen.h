@@ -2,6 +2,8 @@
 #include "afxdialogex.h"
 #include <string>
 #include "Chronogram.h"
+#include <thread>
+#include <atomic>
 using namespace std;
 
 // boîte de dialogue de MainScreen
@@ -15,6 +17,7 @@ public:
 	virtual BOOL OnInitDialog();
 	virtual ~MainScreen();
 	void SetChronogramData(vector<bool> states, vector<int> times);
+	
 	Chronogram chrono;
 	string m_expr;
 	string m_path;
@@ -31,4 +34,7 @@ protected:
 public:
 	afx_msg void OnBnClickedRestart();
 	afx_msg void OnBnClickedRetour();
+
+
+
 };

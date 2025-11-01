@@ -52,6 +52,7 @@ public:
 
     InputDataVector inputData;
        // Évaluer l'expression avec les valeurs d'entrée
+ 
     bool evaluateExpression(LogicExpression* expr);
     SchemaDrawer(CClientDC* deviceContext);
     void drawSchema(string expression);
@@ -60,5 +61,6 @@ public:
     int evaluateSchema(string expression, InputDataVector& inputs);
     void Clear(CClientDC* dc);
 };
+
 
 #endif // SCHEMA_DRAWER_H

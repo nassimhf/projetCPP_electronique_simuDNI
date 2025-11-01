@@ -47,13 +47,13 @@ void Chronogram::setStates(vector<ChronoState> newStates) {
     states = newStates;
 }
 
+
 void Chronogram::draw(CDC* dc) {
     if (states.empty()) return;
 
-    // Sauvegarder le contexte graphique
     int savedDC = dc->SaveDC();
 
-    // --- 1. Dessiner le nom du signal ---
+    // Dessiner le nom du signal
     CFont nameFont;
     nameFont.CreatePointFont(100, _T("Arial Bold"));
     CFont* oldFont = dc->SelectObject(&nameFont);
@@ -61,97 +61,79 @@ void Chronogram::draw(CDC* dc) {
     dc->SetBkMode(TRANSPARENT);
     dc->TextOut(startX - 80, startY + height / 2 - 10, signalName);
 
-    // --- 2. Dessiner les axes ---
+    // Dessiner les axes
     CPen axisPen(PS_SOLID, 2, RGB(0, 0, 0));
     CPen* oldPen = dc->SelectObject(&axisPen);
-
-    // Ligne de base (état bas)
     dc->MoveTo(startX, startY + height);
     dc->LineTo(startX + getTotalWidth(), startY + height);
 
-    // Ligne haute (état haut)
     CPen gridPen(PS_DOT, 1, gridColor);
     dc->SelectObject(&gridPen);
     dc->MoveTo(startX, startY);
     dc->LineTo(startX + getTotalWidth(), startY);
 
-    // --- 3. Dessiner le chronogramme ---
+    // Dessin segment par segment
     int currentX = startX;
     bool previousState = states[0].state;
-    int currentY = states[0].state ? startY : (startY + height);
+    int currentY = previousState ? startY : (startY + height);
 
-    for (int i = 0; i < states.size(); i++) {
+    for (int i = 0; i < states.size(); ++i) {
         ChronoState& st = states[i];
-
-        // Calculer la largeur de ce segment
         int segmentWidth = (int)(st.timeMs * timeScale);
-
-        // Déterminer la couleur selon l'état
         COLORREF segmentColor = st.state ? highColor : lowColor;
         CPen signalPen(PS_SOLID, 3, segmentColor);
         dc->SelectObject(&signalPen);
 
-        // Si changement d'état, dessiner la transition verticale
+        // Transition verticale si changement d'état
         if (i > 0 && st.state != previousState) {
             int newY = st.state ? startY : (startY + height);
-
-            // Ligne verticale de transition
             dc->MoveTo(currentX, currentY);
             dc->LineTo(currentX, newY);
-
             currentY = newY;
         }
 
-        // Dessiner la ligne horizontale pour cet état
+        // Ligne horizontale
         dc->MoveTo(currentX, currentY);
         dc->LineTo(currentX + segmentWidth, currentY);
 
-        // --- 4. Dessiner les annotations de temps ---
+        // Annotation temps
         dc->SelectObject(oldFont);
         CFont timeFont;
         timeFont.CreatePointFont(80, _T("Arial"));
         dc->SelectObject(&timeFont);
         dc->SetTextColor(RGB(100, 100, 100));
-
         CString timeStr;
         timeStr.Format(_T("%dms"), st.timeMs);
         dc->TextOut(currentX + 5, startY + height + 10, timeStr);
 
-        // Ligne verticale de séparation (grille)
+        // Grille verticale
         dc->SelectObject(&gridPen);
         dc->MoveTo(currentX + segmentWidth, startY - 5);
         dc->LineTo(currentX + segmentWidth, startY + height + 5);
 
-        // Mettre à jour la position
+        // Marqueur d'état
+        dc->SelectObject(oldFont);
+        CFont stateFont;
+        stateFont.CreatePointFont(90, _T("Arial Bold"));
+        dc->SelectObject(&stateFont);
+        CString stateStr = st.state ? _T("1") : _T("0");
+        COLORREF stateTextColor = st.state ? highColor : lowColor;
+        dc->SetTextColor(stateTextColor);
+        int textY = st.state ? (startY - 20) : (startY + height + 30);
+        dc->TextOut(currentX + segmentWidth / 2 - 5, textY, stateStr);
+
+        dc->SelectObject(oldPen);
+
+        // Attente selon le temps du segment
+        Sleep(st.timeMs);
+
         currentX += segmentWidth;
         previousState = st.state;
     }
 
-    // --- 5. Dessiner les marqueurs d'état ---
-    dc->SelectObject(oldFont);
-    CFont stateFont;
-    stateFont.CreatePointFont(90, _T("Arial Bold"));
-    dc->SelectObject(&stateFont);
-
-    currentX = startX;
-    for (int i = 0; i < states.size(); i++) {
-        ChronoState& st = states[i];
-        int segmentWidth = (int)(st.timeMs * timeScale);
-
-        // Afficher "1" ou "0" au milieu du segment
-        CString stateStr = st.state ? _T("1") : _T("0");
-        COLORREF stateTextColor = st.state ? highColor : lowColor;
-        dc->SetTextColor(stateTextColor);
-
-        int textY = st.state ? (startY - 20) : (startY + height + 30);
-        dc->TextOut(currentX + segmentWidth / 2 - 5, textY, stateStr);
-
-        currentX += segmentWidth;
-    }
-
-    // Restaurer le contexte
     dc->RestoreDC(savedDC);
 }
+
 
 void Chronogram::setPosition(int x, int y) {
     startX = x;
