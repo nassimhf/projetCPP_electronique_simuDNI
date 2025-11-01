@@ -49,19 +49,19 @@ void NotGate::draw(CClientDC& dc)
 
     dc.Ellipse(circleLeft, circleTop, circleRight, circleBottom);
 
-    // --- Texte "1" (symbole NOT) centré dans le triangle ---
-    CString label = _T("1");
+
     CFont font;
-    font.CreatePointFont(140, _T("Arial Bold"));
+    font.CreatePointFont(100, _T("Arial"));  // Taille de police ajustée
     CFont* oldFont = dc.SelectObject(&font);
-
-    int textX = startPoint.x + gateWidth / 3;
-    int textY = startPoint.y + (gateHeight / 2) - 15;
-
     dc.SetBkMode(TRANSPARENT);
-    dc.TextOutW(textX, textY, label);
-    dc.SelectObject(oldFont);
 
+
+    CString input1(entree ? "1" : "0");
+    dc.TextOut(inputPoint.x - 26, inputPoint.y - 20, input1);
+
+  
+
+    dc.SelectObject(oldFont);
 
 }
 

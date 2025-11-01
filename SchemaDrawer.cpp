@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "SchemaDrawer.h"
 #include "ExpressionParser.h"
+#include "Colors.h"
 
 
 
@@ -9,9 +10,11 @@
 
 SchemaDrawer::SchemaDrawer(CClientDC* deviceContext)
     : dc(deviceContext), currentX(100), currentY(200),
-    gateSpacing(200), verticalSpacing(150), gateLevel(0), maxLevel(0){
-	
+    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0){
+    
 }
+
+
 
 void SchemaDrawer::setSpacing(int horizontal, int vertical) {
     gateSpacing = horizontal;
@@ -34,18 +37,18 @@ int SchemaDrawer::calculateMaxDepth(LogicExpression* expr) {
     int rightDepth = calculateMaxDepth(expr->right);
     return 1 + max(leftDepth, rightDepth);
 }
+void SchemaDrawer::Clear(CClientDC* dc) {
+    CRect rect;
+    dc->GetWindow()->GetClientRect(&rect);
 
+    // Créer un brush blanc pour effacer tout
+    CBrush whiteBrush(APP_COLOR_LIGHT);
+    dc->FillRect(&rect, &whiteBrush);
+}
 void SchemaDrawer::drawSchema(string expression) {
     ExpressionParser parser(expression);
     LogicExpression* expr = parser.parse();
-
-    // VÉRIFICATION D'ERREUR
-    if (!parser.isValid() || !expr) {
-        // Afficher un message d'erreur
-        CString errorMsg(parser.getError().c_str());
-        AfxMessageBox(errorMsg, MB_ICONERROR | MB_OK);
-        return;
-    }
+   
 
     // Calculer la profondeur maximale
     maxLevel = calculateMaxDepth(expr);
@@ -53,6 +56,13 @@ void SchemaDrawer::drawSchema(string expression) {
     CPoint output = drawExpression(expr, 0, 300, 0);
     dc->MoveTo(output);
     dc->LineTo(CPoint(output.x + 50, output.y));
+    CFont font;
+    font.CreatePointFont(120, _T("Arial"));
+    CFont* oldFont = dc->SelectObject(&font);
+    dc->SetBkMode(TRANSPARENT);
+
+    CString text("S");
+    dc->TextOut(output.x + 25, output.y - 28, text);
 }
 
 CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY, int yOffset) {
@@ -67,7 +77,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
     if (expr->type == "VAR") {
         // Variable - position fixe à l'extrême gauche
   
-      
+        
         if (!expr->isNegated)
         {
           fixedX = currentX;
@@ -88,14 +98,15 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
 
     if (expr->type == "NOT") {
       
-
+		
         if (expr->left != nullptr && (expr->left->type == "VAR" || expr->left->type == "NOT")) {
-		//	fixedX = fixedX-100;
+	
         }
 
         // PORTE NOT - COMPORTEMENT SPÉCIAL
         NotGate notGate;
 		notGate.setStartPoint(CPoint(fixedX, adjustedY));
+        notGate.setEntree(evaluateExpression(expr->left) ? 1 : 0);
         notGate.draw(*dc);
         
         
@@ -125,10 +136,11 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         AndGate andGate;
         
         andGate.setStartPoint(CPoint(fixedX, adjustedY));
+
+        andGate.setEntre1(evaluateExpression(expr->left) ? 1 : 0) ;
+        andGate.setEntre2(evaluateExpression(expr->right) ? 1 : 0) ;
         andGate.draw(*dc);
-		andGate.computeSortie();
-		andGate.setEntre1(false);
-		andGate.setEntre2(false);
+		
         
         // Points d'entrée de la porte AND
        
@@ -182,6 +194,10 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         // PORTE OR - DÉCALAGE SPÉCIFIQUE
         OrGate orGate;
         orGate.setStartPoint( CPoint(fixedX, adjustedY));
+
+
+        orGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
+        orGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
         orGate.draw(*dc);
 		
 
@@ -230,13 +246,17 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
 
     if (expr->type == "XOR") {
         
-
-
         // PORTE XOR - DÉCALAGE SPÉCIFIQUE
         XorGate xorGate;
-		xorGate.computeSortie();
+	
 
-        xorGate.setStartPoint( CPoint(fixedX, adjustedY));
+        xorGate.setStartPoint(CPoint(fixedX, adjustedY));
+
+        xorGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
+        xorGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
+        
+        
+	    xorGate.computeSortie();
         xorGate.draw(*dc);
 
         // Points d'entrée de la porte XOR
@@ -284,7 +304,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
     return CPoint(0, 0);
 }
 
-int SchemaDrawer::evaluateExpression(LogicExpression* expr) {
+bool SchemaDrawer::evaluateExpression(LogicExpression* expr) {
     if (!expr) return 0;
 
     // --- Cas d'une variable ---
@@ -304,25 +324,26 @@ int SchemaDrawer::evaluateExpression(LogicExpression* expr) {
     if (expr->type == "AND") {
         int left = evaluateExpression(expr->left);
         int right = evaluateExpression(expr->right);
-        return left && right;
+        return left & right;
     }
 
     // --- Cas d'une porte OR ---
     if (expr->type == "OR") {
         int left = evaluateExpression(expr->left);
         int right = evaluateExpression(expr->right);
-        return left || right;
+        return left | right;
     }
 
     // --- Cas d'une porte XOR ---
     if (expr->type == "XOR") {
-        int left = evaluateExpression(expr->left);
+        int left =  evaluateExpression(expr->left);
         int right = evaluateExpression(expr->right);
         return left ^ right;
     }
 
     return 0;
 }
+
 int SchemaDrawer::evaluateSchema(string expression, InputDataVector& inputs) {
     ExpressionParser parser(expression);
     LogicExpression* expr = parser.parse();

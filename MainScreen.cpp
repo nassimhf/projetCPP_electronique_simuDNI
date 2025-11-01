@@ -121,6 +121,8 @@ void MainScreen::OnPaint()
 
 	int separatorY2 = 60;
 	DrawSeparatorWithLabel(&dc, separatorY2, rect.Width() - 20, _T("SCHEMA"));
+	SchemaDrawer drawer(&dc);
+
 
 	vector<InputDataVector> inputData;
 	vector<bool> resultVector;
@@ -132,20 +134,27 @@ void MainScreen::OnPaint()
 	times = fileReader.getDelays();
 	inputData = fileReader.getPoints();
 
-	// Dessiner  schéma
-	SchemaDrawer drawer(&dc);
 	if (!m_expr.empty())
 	{
-		CClientDC dc(this);
-		SchemaDrawer drawer(&dc);
-		drawer.drawSchema(m_expr);
+		for (auto input : inputData)
+			{
+				bool result = drawer.evaluateSchema(m_expr, input);
+				resultVector.push_back(result);
+				drawer.inputData = input;
+				drawer.Clear(&dc);
+				drawer.drawSchema(m_expr);
+				
+				
+			}
+
+	
+		
+	
 	}
 
-	for (auto input : inputData)
-	{
-		bool result = drawer.evaluateSchema(m_expr, input);
-		resultVector.push_back(result);
-	}
+		// Dessiner  schéma
+	
+
 
 	// Configurer et afficher
 	Chronogram chrono(_T("CLK"), 100, 650);

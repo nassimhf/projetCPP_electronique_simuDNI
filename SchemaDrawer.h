@@ -34,7 +34,7 @@ private:
     int verticalSpacing;
     int gateLevel;
     int maxLevel;
-    InputDataVector inputData;  // Données d'entrée pour les variables
+     // Données d'entrée pour les variables
 
     // Variables d'entrée actuelles
     map<string, int> currentInputValues;  // A->x, B->y, C->z
@@ -49,13 +49,16 @@ private:
 
   
 public: 
+
+    InputDataVector inputData;
        // Évaluer l'expression avec les valeurs d'entrée
-    int evaluateExpression(LogicExpression* expr);
+    bool evaluateExpression(LogicExpression* expr);
     SchemaDrawer(CClientDC* deviceContext);
     void drawSchema(string expression);
     void drawSchemaWithInputs(string expression, InputData& inputs);
     void setSpacing(int horizontal, int vertical); 
     int evaluateSchema(string expression, InputDataVector& inputs);
+    void Clear(CClientDC* dc);
 };
 
 #endif // SCHEMA_DRAWER_H

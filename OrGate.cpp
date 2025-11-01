@@ -82,6 +82,22 @@ void OrGate::draw(CClientDC& dc)
     outputPoint = CPoint(startPoint.x + 95, startPoint.y + 44);
 
 
+    CFont font;
+    font.CreatePointFont(100, _T("Arial"));  // Taille de police ajustée
+    CFont* oldFont = dc.SelectObject(&font);
+    dc.SetBkMode(TRANSPARENT);
+
+
+    CString input1(entre1 ? "1" : "0");
+    dc.TextOut(inputPoint1.x - 15, inputPoint1.y - 34, input1);
+
+    // CORRECTION: Afficher entre2 (pas input1!)
+    CString input2(entre2 ? "1" : "0");
+    dc.TextOut(inputPoint2.x - 15, inputPoint2.y - 42, input2);
+
+    dc.SelectObject(oldFont);
+
+
 }
 
 // Getters/Setters

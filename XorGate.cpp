@@ -1,6 +1,7 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "XorGate.h"
 #include "GraphicsUtils.h"
+#include "Colors.h"
 XorGate::XorGate()
 {
     entre1 = false;
@@ -19,17 +20,17 @@ void XorGate::setStartPoint(CPoint pt)
     int gateHeight = 88;
     int gateWidth = 107;
 
-    // --- Sortie (après l'ellipse) ---
+    // --- Sortie (aprÃ¨s l'ellipse) ---
     outputPoint = CPoint(startPoint.x + gateWidth, startPoint.y + 44);
 
-    // --- Entrées (touchant l'arc d'entrée principal) ---
-    // Les entrées doivent toucher l'arc à mi-hauteur de chaque moitié
-    // Arc d'entrée va de y à y+88
+    // --- EntrÃ©es (touchant l'arc d'entrÃ©e principal) ---
+    // Les entrÃ©es doivent toucher l'arc Ã  mi-hauteur de chaque moitiÃ©
+    // Arc d'entrÃ©e va de y Ã  y+88
     // Point haut : ~25% de la hauteur (y + 22)
     // Point bas : ~75% de la hauteur (y + 66)
 
-    inputPoint1 = CPoint(startPoint.x, startPoint.y + 22);  // entrée supérieure sur l'arc
-    inputPoint2 = CPoint(startPoint.x, startPoint.y + 66);  // entrée inférieure sur l'arc
+    inputPoint1 = CPoint(startPoint.x, startPoint.y + 22);  // entrÃ©e supÃ©rieure sur l'arc
+    inputPoint2 = CPoint(startPoint.x, startPoint.y + 66);  // entrÃ©e infÃ©rieure sur l'arc
 
 
 
@@ -38,27 +39,27 @@ void XorGate::setStartPoint(CPoint pt)
 void XorGate::draw(CClientDC& dc)
 {
     // DIMENSIONS GLOBALES POUR LA PORTE XOR:
-    // Largeur totale: ~95 px (identique à OR gate)
-    // Hauteur totale: 88 px (identique à OR gate)
+    // Largeur totale: ~95 px (identique Ã  OR gate)
+    // Hauteur totale: 88 px (identique Ã  OR gate)
     // La porte XOR est une porte OR avec:
-    // 1. Un arc d'entrée supplémentaire (décalé vers la gauche)
-    // 2. Une ellipse à la sortie
+    // 1. Un arc d'entrÃ©e supplÃ©mentaire (dÃ©calÃ© vers la gauche)
+    // 2. Une ellipse Ã  la sortie
 
-    // --- 0. Dessiner l'arc d'entrée SUPPLÉMENTAIRE (caractéristique du XOR) ---
-    // Arc décalé de ~10px vers la gauche - PLUS COURBÉ
-    int extraArcLeft = startPoint.x - 32;  // Augmenté pour plus de courbure
+    // --- 0. Dessiner l'arc d'entrÃ©e SUPPLÃ‰MENTAIRE (caractÃ©ristique du XOR) ---
+    // Arc dÃ©calÃ© de ~10px vers la gauche - PLUS COURBÃ‰
+    int extraArcLeft = startPoint.x - 32;  // AugmentÃ© pour plus de courbure
     int extraArcTop = startPoint.y;
-    int extraArcRight = startPoint.x - 4;   // Augmenté pour plus de courbure
+    int extraArcRight = startPoint.x - 4;   // AugmentÃ© pour plus de courbure
     int extraArcBottom = startPoint.y + 88;
 
     CPoint extraArcTop_pt(startPoint.x - 10, startPoint.y);
     CPoint extraArcBottom_pt(startPoint.x - 10, startPoint.y + 88);
 
-    // Dessiner l'arc supplémentaire (de bas en haut, convexe vers la DROITE)
+    // Dessiner l'arc supplÃ©mentaire (de bas en haut, convexe vers la DROITE)
     dc.Arc(extraArcLeft, extraArcTop, extraArcRight, extraArcBottom,
         extraArcBottom_pt.x, extraArcBottom_pt.y, extraArcTop_pt.x, extraArcTop_pt.y);
 
-    // --- 1. Dessiner la courbe d'entrée principale (côté gauche) ---
+    // --- 1. Dessiner la courbe d'entrÃ©e principale (cÃ´tÃ© gauche) ---
     int inputArcLeft = startPoint.x - 18;
     int inputArcTop = startPoint.y;
     int inputArcRight = startPoint.x + 18;
@@ -67,11 +68,11 @@ void XorGate::draw(CClientDC& dc)
     CPoint inputArcTop_pt(startPoint.x, startPoint.y);
     CPoint inputArcBottom_pt(startPoint.x, startPoint.y + 88);
 
-    // Dessiner l'arc d'entrée principal
+    // Dessiner l'arc d'entrÃ©e principal
     dc.Arc(inputArcLeft, inputArcTop, inputArcRight, inputArcBottom,
         inputArcBottom_pt.x, inputArcBottom_pt.y, inputArcTop_pt.x, inputArcTop_pt.y);
 
-    // --- 2. Courbe supérieure ---
+    // --- 2. Courbe supÃ©rieure ---
     POINT topCurve[4];
     topCurve[0] = CPoint(startPoint.x, startPoint.y);
     topCurve[1] = CPoint(startPoint.x + 36, startPoint.y - 18);
@@ -79,7 +80,7 @@ void XorGate::draw(CClientDC& dc)
     topCurve[3] = CPoint(startPoint.x + 95, startPoint.y + 44);
     dc.PolyBezier(topCurve, 4);
 
-    // --- 3. Courbe inférieure ---
+    // --- 3. Courbe infÃ©rieure ---
     POINT bottomCurve[4];
     bottomCurve[0] = CPoint(startPoint.x + 95, startPoint.y + 44);
     bottomCurve[1] = CPoint(startPoint.x + 69, startPoint.y + 79);
@@ -87,19 +88,38 @@ void XorGate::draw(CClientDC& dc)
     bottomCurve[3] = CPoint(startPoint.x, startPoint.y + 88);
     dc.PolyBezier(bottomCurve, 4);
 
-    // --- 4. Ellipse de sortie (caractéristique du XOR) ---
-    // Petite ellipse à la sortie (diamètre ~12px)
-    int ellipseLeft = startPoint.x + 95;
-    int ellipseTop = startPoint.y + 38;
-    int ellipseRight = startPoint.x + 107;
-    int ellipseBottom = startPoint.y + 50;
+    
 
-    dc.Ellipse(ellipseLeft, ellipseTop, ellipseRight, ellipseBottom);
+    //entres 1
+    
 
-    // --- 5. Point de sortie (après l'ellipse) ---
-    outputPoint = CPoint(startPoint.x + 107, startPoint.y + 44);
+    //CORRECTION: Afficher entre1
+    
+  
+    CFont font;
+    font.CreatePointFont(100, _T("Arial"));  // Taille de police ajustÃ©e
+    CFont* oldFont = dc.SelectObject(&font);
+    dc.SetBkMode(TRANSPARENT);
+
+    
+    CString input1(entre1 ? "1" : "0");
+    dc.TextOut(inputPoint1.x - 26, inputPoint1.y - 20, input1);
+
+    // CORRECTION: Afficher entre2 (pas input1!)
+    CString input2(entre2 ? "1" : "0");
+    dc.TextOut(inputPoint2.x - 26, inputPoint2.y - 20, input2);
+
+    dc.SelectObject(oldFont);
 
 
+   
+
+    // --- 5. Point de sortie (aprÃ¨s l'ellipse) ---
+    outputPoint = CPoint(startPoint.x + 95, startPoint.y + 44);
+
+
+
+   
    
 	
 
@@ -114,7 +134,7 @@ CPoint XorGate::getOutputPoint() const { return outputPoint; }
 CPoint XorGate::getInputPoint1() const { return inputPoint1; }
 CPoint XorGate::getInputPoint2() const { return inputPoint2; }
 
-// NOUVELLES MÉTHODES
+// NOUVELLES MÃ‰THODES
 void XorGate::connectInput1Gate(XorGate* gate) {
     inputGate1 = gate;
     isInput1Variable = false;
@@ -140,15 +160,15 @@ void XorGate::computeSortie()
     sortie = entre1 ^ entre2;
 }
 
-// ÉVALUATION RÉCURSIVE
+// Ã‰VALUATION RÃ‰CURSIVE
 bool XorGate::evaluate()
 {
-    // Si entrée 1 n'est pas une variable, récupérer depuis la porte connectée
+    // Si entrÃ©e 1 n'est pas une variable, rÃ©cupÃ©rer depuis la porte connectÃ©e
     if (!isInput1Variable && inputGate1 != nullptr) {
         entre1 = inputGate1->evaluate();
     }
 
-    // Si entrée 2 n'est pas une variable, récupérer depuis la porte connectée
+    // Si entrÃ©e 2 n'est pas une variable, rÃ©cupÃ©rer depuis la porte connectÃ©e
     if (!isInput2Variable && inputGate2 != nullptr) {
         entre2 = inputGate2->evaluate();
     }

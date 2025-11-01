@@ -13,10 +13,6 @@ bool FileReader::readFile(const std::string& filePath)
     // Convertir std::string → CString
     CString path(filePath.c_str());
 
-    // Remplacer les backslashes \ par des slashes /
-    path.Replace(_T("\\"), _T("/"));
-
-    
 
     std::ifstream file(path);
     if (!file.is_open()) {
