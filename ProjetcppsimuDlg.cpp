@@ -108,6 +108,8 @@ BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_PATH, &CProjetcppsimuDlg::OnBnClickedButtonPath)
 	ON_EN_CHANGE(IDC_EDIT_PATH, &CProjetcppsimuDlg::OnEnChangeEditPath)
 	ON_BN_CLICKED(IDCANCEL, &CProjetcppsimuDlg::OnBnClickedCancel)
+
+	ON_EN_CHANGE(IDC_EDIT_EQ, &CProjetcppsimuDlg::OnEnChangeEditEq)
 END_MESSAGE_MAP()
 
 
@@ -157,6 +159,8 @@ BOOL CProjetcppsimuDlg::OnInitDialog()
 	//  lorsque la fenêtre principale de l'application n'est pas une boîte de dialogue
 	SetIcon(m_hIcon, TRUE);			// Définir une grande icône
 	SetIcon(m_hIcon, FALSE);		// Définir une petite icône
+
+	
 
 	// TODO: ajoutez ici une initialisation supplémentaire
 
@@ -317,12 +321,8 @@ void CProjetcppsimuDlg::OnEnChangeEditEq() ////////////////
 {
 
 	
-	// TODO:  S'il s'agit d'un contrôle RICHEDIT, le contrôle ne
-	// envoyez cette notification sauf si vous substituez CDialogEx::OnInitDialog()
-	// fonction et appelle CRichEditCtrl().SetEventMask()
-	// avec l'indicateur ENM_CHANGE ajouté au masque grâce à l'opérateur OR.
+	
 
-	// TODO:  Ajoutez ici le code de votre gestionnaire de notification de contrôle
 }
 
 
@@ -414,7 +414,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	CString expression;
 	m_editZone.GetWindowText(expression);
 
-	// ✅ VÉRIFICATION AVANT DE CONTINUER
+	// VÉRIFICATION AVANT DE CONTINUER
 	if (expression.IsEmpty()) {
 		AfxMessageBox(_T("Veuillez entrer une expression logique !"), MB_ICONWARNING | MB_OK);
 		return;
@@ -423,7 +423,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	CT2CA exprConverted(expression);
 	std::string EXP_str(exprConverted);
 
-	// ✅ TESTER L'EXPRESSION
+	// TESTER L'EXPRESSION
 	ExpressionParser testParser(EXP_str);
 	LogicExpression* testExpr = testParser.parse();
 

@@ -13,6 +13,8 @@ public:
 	CProjetcppsimuDlg(CWnd* pParent = nullptr);	// constructeur standard
 	CEdit m_editZone;
 	CEdit m_path_text;
+	
+
 	afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 
 // Données de boîte de dialogue
@@ -37,15 +39,11 @@ protected:
 public:
 	afx_msg void OnBnClickedButtonB();
 	afx_msg void OnBnClickedButtonA2();
-	afx_msg void OnBnClickedButton2();
-	afx_msg void OnBnClickedButton3();
-	afx_msg void OnEnChangeEdit1();
+
 	afx_msg void OnBnClickedButtonC();
 	afx_msg void OnEnChangeEditEq();
 	afx_msg void OnBnClickedButtonOr();
-	afx_msg void OnBnClickedButton5();
-	afx_msg void OnBnClickedButton6();
-	afx_msg void OnBnClickedButton7();
+
 	afx_msg void OnBnClickedButtonAnd();
 	afx_msg void OnBnClickedButtonXor();
 	afx_msg void OnBnClickedButtonNot();
@@ -60,6 +58,8 @@ public:
 	afx_msg void OnBnClickedButtonPath();
 	afx_msg void OnEnChangeEditPath();
 	afx_msg void OnBnClickedCancel();
+
+	
 
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
