@@ -13,6 +13,7 @@
 #include "Colors.h"
 #include <atlimage.h>
 #include "ExpressionParser.h"
+#include <vector>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -30,6 +31,7 @@ class CAboutDlg : public CDialogEx
 	
 public:
 	CAboutDlg();
+	vector<string> vecteurTXT;
 	
 // Données de boîte de dialogue
 #ifdef AFX_DESIGN_TIME
@@ -347,7 +349,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonXor()
 {
 	CString currentText;
 	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T(" XOR ");                  // ajoute "A" à la suite
+	currentText += _T(" XOR ");                  
 	m_editZone.SetWindowText(currentText);
 }
 
@@ -355,7 +357,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonNot()
 {
 	CString currentText;
 	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T(" NOT");                  // ajoute "A" à la suite
+	currentText += _T(" NOT ");                  
 	m_editZone.SetWindowText(currentText);
 }
 
@@ -363,7 +365,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonOp()
 {
 	CString currentText;
 	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("(");                  // ajoute "A" à la suite
+	currentText += _T("(");                  
 	m_editZone.SetWindowText(currentText);
 }
 
@@ -381,10 +383,17 @@ void CProjetcppsimuDlg::OnBnClickedButtonDel()
 	CString currentText;
 	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
 
+
 	int len = currentText.GetLength();
 	if (len > 0)
 	{
-		currentText.Delete(len - 1, 1);      // supprime le dernier caractère
+		if (len >= 4 && currentText.Right(4) == _T(" OR ")) currentText.Delete(len - 4, 4);
+		else if (len >= 5 && currentText.Right(5) == _T(" AND ")) currentText.Delete(len - 5, 5);
+		else if (len >= 5 && currentText.Right(5) == _T(" XOR ")) currentText.Delete(len - 5, 5);
+		else if (len >= 5 && currentText.Right(6) == _T(" NOT ")) currentText.Delete(len - 6, 6);
+			
+		else currentText.Delete(len - 1, 1);      // supprime le dernier caractère}
+		
 		m_editZone.SetWindowText(currentText); // remet le texte modifié
 	}
 }
