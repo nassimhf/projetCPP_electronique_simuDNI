@@ -390,7 +390,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonDel()
 		if (len >= 4 && currentText.Right(4) == _T(" OR ")) currentText.Delete(len - 4, 4);
 		else if (len >= 5 && currentText.Right(5) == _T(" AND ")) currentText.Delete(len - 5, 5);
 		else if (len >= 5 && currentText.Right(5) == _T(" XOR ")) currentText.Delete(len - 5, 5);
-		else if (len >= 5 && currentText.Right(6) == _T(" NOT ")) currentText.Delete(len - 6, 6);
+		else if (len >= 5 && currentText.Right(5) == _T(" NOT ")) currentText.Delete(len - 5, 5);
 			
 		else currentText.Delete(len - 1, 1);      // supprime le dernier caractère}
 		
