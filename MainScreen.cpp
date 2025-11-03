@@ -104,6 +104,7 @@ void MainScreen::SetChronogramData(vector<bool> states, vector<int> times)
 BEGIN_MESSAGE_MAP(MainScreen, CDialogEx)
 	ON_WM_PAINT()  // AJOUTER CETTE LIGNE - TRÈS IMPORTANT !
 	ON_BN_CLICKED(IDC_RETOUR, &MainScreen::OnBnClickedRetour)
+	ON_BN_CLICKED(IDOK, &MainScreen::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 void MainScreen::OnPaint()
@@ -166,10 +167,10 @@ void MainScreen::OnPaint()
 	chrono.setTimeScale(timeScale);  // 0.5 pixel = 1ms
 
 
-	CString msg;
-	msg.Format(_T("ERROR Reading file = %f"), timeScale);  // %d convertit true → 1, false → 0
+	//CString msg;
+	//msg.Format(_T("ERROR Reading file = %f"), timeScale);  // %d convertit true → 1, false → 0
 
-	AfxMessageBox(msg);
+	//AfxMessageBox(msg);
 	chrono.setStates(resultVector, times);
 	chrono.draw(&dc);
 }
@@ -184,4 +185,10 @@ void MainScreen::OnBnClickedRetour()
 {
 	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
 	EndDialog(IDCANCEL); // ou EndDialog(ID_RETOUR);
+}
+
+void MainScreen::OnBnClickedOk()
+{
+	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
+	CDialogEx::OnOK();
 }

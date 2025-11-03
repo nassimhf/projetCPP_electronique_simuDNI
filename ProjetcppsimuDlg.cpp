@@ -14,6 +14,7 @@
 #include <atlimage.h>
 #include "ExpressionParser.h"
 #include <vector>
+#include "resource.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -122,7 +123,20 @@ BOOL CProjetcppsimuDlg::OnInitDialog()
 	// Ajouter l'élément de menu "À propos de..." au menu Système.
 	SetBackgroundColor(APP_COLOR_LIGHT);
 
+	// Crée la police (15 points, Arial)
+	m_fontStatic.CreatePointFont(150, _T("Arial"));
 
+	// Récupère le contrôle et applique la police
+	CStatic* pStatic = (CStatic*)GetDlgItem(IDC_STATIC_5);
+	if (pStatic)
+	{
+		pStatic->SetFont(&m_fontStatic);
+		pStatic->SetWindowText(_T("DNI Logic Simulator est un simulateur interactif de circuits logiques numeriques developpe dans le cadre de la formation academique en EEA Parcours ESI de l'Universite de Bourgogne Europe."));  // texte affiché
+	}
+	else
+	{
+		AfxMessageBox(_T("Impossible de trouver IDC_STATIC_5 !"));
+	}
 
 
 
@@ -160,7 +174,6 @@ BOOL CProjetcppsimuDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Définir une grande icône
 	SetIcon(m_hIcon, FALSE);		// Définir une petite icône
 
-	
 
 	// TODO: ajoutez ici une initialisation supplémentaire
 
@@ -414,7 +427,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	CString expression;
 	m_editZone.GetWindowText(expression);
 
-	// VÉRIFICATION AVANT DE CONTINUER
+	// ✅ VÉRIFICATION AVANT DE CONTINUER
 	if (expression.IsEmpty()) {
 		AfxMessageBox(_T("Veuillez entrer une expression logique !"), MB_ICONWARNING | MB_OK);
 		return;
@@ -423,7 +436,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	CT2CA exprConverted(expression);
 	std::string EXP_str(exprConverted);
 
-	// TESTER L'EXPRESSION
+	// ✅ TESTER L'EXPRESSION
 	ExpressionParser testParser(EXP_str);
 	LogicExpression* testExpr = testParser.parse();
 

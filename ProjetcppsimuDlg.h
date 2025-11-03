@@ -13,6 +13,7 @@ public:
 	CProjetcppsimuDlg(CWnd* pParent = nullptr);	// constructeur standard
 	CEdit m_editZone;
 	CEdit m_path_text;
+	CFont m_fontStatic;
 	
 
 	afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
@@ -30,7 +31,7 @@ public:
 protected:
 	HICON m_hIcon;
 		
-	// Fonctions générées de la table des messages
+	
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();

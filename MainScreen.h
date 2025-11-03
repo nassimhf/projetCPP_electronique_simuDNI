@@ -37,4 +37,5 @@ public:
 
 
 
+	afx_msg void OnBnClickedOk();
 };

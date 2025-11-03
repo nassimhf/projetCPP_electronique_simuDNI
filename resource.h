@@ -35,6 +35,7 @@
 #define IDC_BUTTON_PATH                 1016
 #define IDC_Restart                     1016
 #define IDC_DESC                        1019
+#define IDC_STATIC_5                    1021
 
 // Next default values for new objects
 // 
@@ -42,7 +43,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1020
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
