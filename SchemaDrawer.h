@@ -34,6 +34,7 @@ private:
     int verticalSpacing;
     int gateLevel;
     int maxLevel;
+    int GateCounter;
      // Données d'entrée pour les variables
 
     // Variables d'entrée actuelles
@@ -52,7 +53,9 @@ public:
 
     InputDataVector inputData;
        // Évaluer l'expression avec les valeurs d'entrée
- 
+    
+    int calculateGateCount(LogicExpression* expr);
+    int getGateCount();
     bool evaluateExpression(LogicExpression* expr);
     SchemaDrawer(CClientDC* deviceContext);
     void drawSchema(string expression);

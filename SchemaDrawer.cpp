@@ -10,7 +10,7 @@
 
 SchemaDrawer::SchemaDrawer(CClientDC* deviceContext)
     : dc(deviceContext), currentX(100), currentY(200),
-    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0){
+    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0),GateCounter(0){
     
 }
 
@@ -37,6 +37,30 @@ int SchemaDrawer::calculateMaxDepth(LogicExpression* expr) {
     int rightDepth = calculateMaxDepth(expr->right);
     return 1 + max(leftDepth, rightDepth);
 }
+
+int SchemaDrawer::calculateGateCount(LogicExpression* expr) {
+    if (!expr) return 0;
+
+    if (expr->type == "VAR") {
+        return 0;
+    }
+
+    if (expr->type == "NOT") {
+        return 1 + calculateGateCount(expr->left);
+    }
+
+    // Pour AND, OR, XOR
+    if (expr->type == "AND" || expr->type == "OR" || expr->type == "XOR") {
+        return 1 + calculateGateCount(expr->left) + calculateGateCount(expr->right);
+    }
+
+    return GateCounter;
+}
+
+
+int SchemaDrawer::getGateCount() {
+    return GateCounter;
+}
 void SchemaDrawer::Clear(CClientDC* dc) {
     CRect rect;
     dc->GetWindow()->GetClientRect(&rect);
@@ -48,7 +72,7 @@ void SchemaDrawer::Clear(CClientDC* dc) {
 void SchemaDrawer::drawSchema(string expression) {
     ExpressionParser parser(expression);
     LogicExpression* expr = parser.parse();
-   
+    GateCounter = calculateGateCount(expr);
 
     // Calculer la profondeur maximale
     maxLevel = calculateMaxDepth(expr);
@@ -99,7 +123,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
 
     if (expr->type == "NOT") {
       
-		
+       
         if (expr->left != nullptr && (expr->left->type == "VAR" || expr->left->type == "NOT")) {
 	
         }
@@ -128,7 +152,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
     }
 
     if (expr->type == "AND") {
-       
+
         if (expr->right!= nullptr && (expr->right->type =="VAR"|| expr->right->type == "NOT"))
         {
             
@@ -185,7 +209,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
 
     if (expr->type == "OR") {
         
-
+     
         if (expr->right != nullptr  && expr->right->type == "NOT")
         {
           
@@ -246,7 +270,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
     }
 
     if (expr->type == "XOR") {
-        
+     
         // PORTE XOR - DÉCALAGE SPÉCIFIQUE
         XorGate xorGate;
 	

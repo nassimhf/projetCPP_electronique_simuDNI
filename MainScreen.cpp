@@ -150,7 +150,10 @@ void MainScreen::OnPaint()
 			}
 
 	
-		
+		CString msg;
+		msg.Format(_T("maxdepth = %d"), drawer.getGateCount());  // %d convertit true → 1, false → 0
+
+		AfxMessageBox(msg);
 	
 	}
 
