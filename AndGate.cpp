@@ -66,10 +66,12 @@ void AndGate::draw(CClientDC& dc)
 
 
     CString input1(entre1 ? "1" : "0");
+    dc.SetTextColor(entre1 ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPoint1.x - 26, inputPoint1.y - 20, input1);
 
    
     CString input2(entre2 ? "1" : "0");
+    dc.SetTextColor(entre2 ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPoint2.x - 26, inputPoint2.y - 20, input2);
 
     dc.SelectObject(oldFont);

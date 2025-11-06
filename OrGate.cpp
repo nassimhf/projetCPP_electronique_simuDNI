@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "OrGate.h"
 #include "GraphicsUtils.h"
+#include "Colors.h"
 
 OrGate::OrGate()
 {
@@ -89,10 +90,12 @@ void OrGate::draw(CClientDC& dc)
 
 
     CString input1(entre1 ? "1" : "0");
+    dc.SetTextColor(entre1 ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPoint1.x - 15, inputPoint1.y - 34, input1);
 
     // CORRECTION: Afficher entre2 (pas input1!)
     CString input2(entre2 ? "1" : "0");
+    dc.SetTextColor(entre2 ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPoint2.x - 15, inputPoint2.y - 42, input2);
 
     dc.SelectObject(oldFont);

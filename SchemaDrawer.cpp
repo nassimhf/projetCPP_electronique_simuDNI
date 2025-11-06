@@ -89,6 +89,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         dc->SetBkMode(TRANSPARENT);
 
         CString text(expr->varName.c_str());
+        dc->SetTextColor(RGB(0,0,0));
         dc->TextOut(fixedX, adjustedY, text);
        
         dc->SelectObject(oldFont);
