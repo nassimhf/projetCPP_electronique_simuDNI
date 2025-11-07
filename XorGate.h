@@ -20,8 +20,10 @@ public:
     XorGate();
 
     void setStartPoint(CPoint pt);
-    void draw(CClientDC& dc);
+    void draw(CClientDC& dc,float scale);
+    
 
+    
     // Getters/Setters existants
     bool getEntre1() const;
     bool getEntre2() const;

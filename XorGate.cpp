@@ -29,103 +29,89 @@ void XorGate::setStartPoint(CPoint pt)
     // Point haut : ~25% de la hauteur (y + 22)
     // Point bas : ~75% de la hauteur (y + 66)
 
-    inputPoint1 = CPoint(startPoint.x, startPoint.y + 22);  // entrée supérieure sur l'arc
-    inputPoint2 = CPoint(startPoint.x, startPoint.y + 66);  // entrée inférieure sur l'arc
+  
 
 
 
 }
 
-void XorGate::draw(CClientDC& dc)
+void XorGate::draw(CClientDC& dc,float scale)
 {
-    // DIMENSIONS GLOBALES POUR LA PORTE XOR:
-    // Largeur totale: ~95 px (identique à OR gate)
-    // Hauteur totale: 88 px (identique à OR gate)
-    // La porte XOR est une porte OR avec:
-    // 1. Un arc d'entrée supplémentaire (décalé vers la gauche)
-    // 2. Une ellipse à la sortie
+    // --- Dimensions de base ---
+    const int baseWidth = 95;
+    const int baseHeight = 88;
+    
 
-    // --- 0. Dessiner l'arc d'entrée SUPPLÉMENTAIRE (caractéristique du XOR) ---
-    // Arc décalé de ~10px vers la gauche - PLUS COURBÉ
-    int extraArcLeft = startPoint.x - 32;  // Augmenté pour plus de courbure
+    // --- 0. Arc supplémentaire (spécifique au XOR) ---
+    int extraArcLeft = startPoint.x - int(32 * scale);
     int extraArcTop = startPoint.y;
-    int extraArcRight = startPoint.x - 4;   // Augmenté pour plus de courbure
-    int extraArcBottom = startPoint.y + 88;
+    int extraArcRight = startPoint.x - int(4 * scale);
+    int extraArcBottom = startPoint.y + int(baseHeight * scale);
 
-    CPoint extraArcTop_pt(startPoint.x - 10, startPoint.y);
-    CPoint extraArcBottom_pt(startPoint.x - 10, startPoint.y + 88);
+    CPoint extraArcTop_pt(startPoint.x - int(10 * scale), startPoint.y);
+    CPoint extraArcBottom_pt(startPoint.x - int(10 * scale), startPoint.y + int(baseHeight * scale));
 
-    // Dessiner l'arc supplémentaire (de bas en haut, convexe vers la DROITE)
     dc.Arc(extraArcLeft, extraArcTop, extraArcRight, extraArcBottom,
-        extraArcBottom_pt.x, extraArcBottom_pt.y, extraArcTop_pt.x, extraArcTop_pt.y);
+        extraArcBottom_pt.x, extraArcBottom_pt.y,
+        extraArcTop_pt.x, extraArcTop_pt.y);
 
-    // --- 1. Dessiner la courbe d'entrée principale (côté gauche) ---
-    int inputArcLeft = startPoint.x - 18;
+    // --- 1. Arc principal (entrée gauche) ---
+    int inputArcLeft = startPoint.x - int(18 * scale);
     int inputArcTop = startPoint.y;
-    int inputArcRight = startPoint.x + 18;
-    int inputArcBottom = startPoint.y + 88;
+    int inputArcRight = startPoint.x + int(18 * scale);
+    int inputArcBottom = startPoint.y + int(baseHeight * scale);
 
     CPoint inputArcTop_pt(startPoint.x, startPoint.y);
-    CPoint inputArcBottom_pt(startPoint.x, startPoint.y + 88);
+    CPoint inputArcBottom_pt(startPoint.x, startPoint.y + int(baseHeight * scale));
 
-    // Dessiner l'arc d'entrée principal
     dc.Arc(inputArcLeft, inputArcTop, inputArcRight, inputArcBottom,
-        inputArcBottom_pt.x, inputArcBottom_pt.y, inputArcTop_pt.x, inputArcTop_pt.y);
+        inputArcBottom_pt.x, inputArcBottom_pt.y,
+        inputArcTop_pt.x, inputArcTop_pt.y);
 
     // --- 2. Courbe supérieure ---
     POINT topCurve[4];
     topCurve[0] = CPoint(startPoint.x, startPoint.y);
-    topCurve[1] = CPoint(startPoint.x + 36, startPoint.y - 18);
-    topCurve[2] = CPoint(startPoint.x + 69, startPoint.y + 9);
-    topCurve[3] = CPoint(startPoint.x + 95, startPoint.y + 44);
+    topCurve[1] = CPoint(startPoint.x + int(36 * scale), startPoint.y - int(18 * scale));
+    topCurve[2] = CPoint(startPoint.x + int(69 * scale), startPoint.y + int(9 * scale));
+    topCurve[3] = CPoint(startPoint.x + int(95 * scale), startPoint.y + int(44 * scale));
     dc.PolyBezier(topCurve, 4);
 
     // --- 3. Courbe inférieure ---
     POINT bottomCurve[4];
-    bottomCurve[0] = CPoint(startPoint.x + 95, startPoint.y + 44);
-    bottomCurve[1] = CPoint(startPoint.x + 69, startPoint.y + 79);
-    bottomCurve[2] = CPoint(startPoint.x + 36, startPoint.y + 106);
-    bottomCurve[3] = CPoint(startPoint.x, startPoint.y + 88);
+    bottomCurve[0] = CPoint(startPoint.x + int(95 * scale), startPoint.y + int(44 * scale));
+    bottomCurve[1] = CPoint(startPoint.x + int(69 * scale), startPoint.y + int(79 * scale));
+    bottomCurve[2] = CPoint(startPoint.x + int(36 * scale), startPoint.y + int(106 * scale));
+    bottomCurve[3] = CPoint(startPoint.x, startPoint.y + int(88 * scale));
     dc.PolyBezier(bottomCurve, 4);
 
-    
+    // --- 4. Points d'entrée et de sortie (mis à l’échelle) ---
+    int gateWidth = int(baseWidth * scale);
 
-    //entres 1
-    
+    inputPoint1 = CPoint(startPoint.x, startPoint.y + int(baseHeight * 0.25 * scale)); // 25% depuis le haut
+    inputPoint2 = CPoint(startPoint.x, startPoint.y + int(baseHeight * 0.75 * scale)); // 75% depuis le haut
+    outputPoint = CPoint(startPoint.x + gateWidth, startPoint.y + int(44 * scale)); // sortie
 
-    //CORRECTION: Afficher entre1
-    
-  
+    // --- 5. Affichage des entrées (1 / 0) ---
     CFont font;
-    font.CreatePointFont(100, _T("Arial"));  // Taille de police ajustée
+    font.CreatePointFont(int(100 * scale), _T("Arial"));
     CFont* oldFont = dc.SelectObject(&font);
     dc.SetBkMode(TRANSPARENT);
 
-    
     CString input1(entre1 ? "1" : "0");
     dc.SetTextColor(entre1 ? APP_COLOR_HIGH : APP_COLOR_LOW);
-    dc.TextOut(inputPoint1.x - 26, inputPoint1.y - 20, input1);
+    dc.TextOut(inputPoint1.x - int(26 * scale), inputPoint1.y - int(20 * scale), input1);
 
-    // CORRECTION: Afficher entre2 (pas input1!)
     CString input2(entre2 ? "1" : "0");
     dc.SetTextColor(entre2 ? APP_COLOR_HIGH : APP_COLOR_LOW);
-    dc.TextOut(inputPoint2.x - 26, inputPoint2.y - 20, input2);
+    dc.TextOut(inputPoint2.x - int(26 * scale), inputPoint2.y - int(20 * scale), input2);
 
     dc.SelectObject(oldFont);
-
-
-   
-
-    // --- 5. Point de sortie (après l'ellipse) ---
-    outputPoint = CPoint(startPoint.x + 95, startPoint.y + 44);
-
-
-
-   
-   
+    // Tu peux l'utiliser ensuite pour connecter des fils, par exemple :
+    // dc.MoveTo(outputPoint);
+    // dc.LineTo(outputPoint.x + 20, outputPoint.y);
+}
 	
 
-}
 // Getters/Setters
 bool XorGate::getEntre1() const { return entre1; }
 bool XorGate::getEntre2() const { return entre2; }

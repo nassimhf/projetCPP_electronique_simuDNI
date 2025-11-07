@@ -19,25 +19,12 @@ OrGate::OrGate()
 void OrGate::setStartPoint(CPoint pt)
 {
     startPoint = pt;
-
-    // Dimensions doublées (×2)
-    int gateHeight = 120;   // hauteur totale (60 * 2)
-    int gateWidth = 160;    // largeur totale (80 * 2)
-    int offset = 30;        // décalage pour l’arc interne (15 * 2)
-
-    // --- Calcul du point de sortie ---
-    // À l’extrémité droite du grand arc
-    outputPoint = CPoint(startPoint.x + gateWidth + 30, startPoint.y + gateHeight / 2);
-
-    // --- Points d’entrée (deux entrées espacées verticalement) ---
-    inputPoint1 = CPoint(startPoint.x , startPoint.y + 35);   // entrée supérieure
-    inputPoint2 = CPoint(startPoint.x, startPoint.y + 85);   // entrée inférieure
 }
 
 
 
 
-void OrGate::draw(CClientDC& dc)
+void OrGate::draw(CClientDC& dc,float scale)
 {
     // DIMENSIONS GLOBALES POUR LA PORTE OR:
     // Largeur totale: ~95 px (augmentée)
@@ -49,57 +36,62 @@ void OrGate::draw(CClientDC& dc)
     // --- 1. Dessiner la courbe d'entrée (côté gauche) ---
     // Petit arc convexe qui forme l'entrée de la porte OR
     // Rectangle englobant pour l'arc d'entrée (largeur ~36px)
-    int inputArcLeft = startPoint.x - 18;
+    int width = int(95 * scale);
+    int height = int(88 * scale);
+
+    // --- 1. Arc d'entrée (côté gauche) ---
+    int inputArcLeft = startPoint.x - int(18 * scale);
     int inputArcTop = startPoint.y;
-    int inputArcRight = startPoint.x + 18;
-    int inputArcBottom = startPoint.y + 88;
+    int inputArcRight = startPoint.x + int(18 * scale);
+    int inputArcBottom = startPoint.y + height;
 
-    // Points de début et fin pour l'arc d'entrée (MIROIR - inversés verticalement)
     CPoint inputArcTop_pt(startPoint.x, startPoint.y);
-    CPoint inputArcBottom_pt(startPoint.x, startPoint.y + 88);
+    CPoint inputArcBottom_pt(startPoint.x, startPoint.y + height);
 
-    // Dessiner l'arc d'entrée MIROIR (de bas en haut, convexe vers la DROITE)
     dc.Arc(inputArcLeft, inputArcTop, inputArcRight, inputArcBottom,
-        inputArcBottom_pt.x, inputArcBottom_pt.y, inputArcTop_pt.x, inputArcTop_pt.y);
+        inputArcBottom_pt.x, inputArcBottom_pt.y,
+        inputArcTop_pt.x, inputArcTop_pt.y);
 
     // --- 2. Courbe supérieure ---
     POINT topCurve[4];
-    topCurve[0] = CPoint(startPoint.x, startPoint.y);                // Départ (haut gauche)
-    topCurve[1] = CPoint(startPoint.x + 36, startPoint.y - 18);      // Point de contrôle 1
-    topCurve[2] = CPoint(startPoint.x + 69, startPoint.y + 9);       // Point de contrôle 2
-    topCurve[3] = CPoint(startPoint.x + 95, startPoint.y + 44);      // Arrivée (sortie)
+    topCurve[0] = CPoint(startPoint.x, startPoint.y);
+    topCurve[1] = CPoint(startPoint.x + int(36 * scale), startPoint.y - int(18 * scale));
+    topCurve[2] = CPoint(startPoint.x + int(69 * scale), startPoint.y + int(9 * scale));
+    topCurve[3] = CPoint(startPoint.x + width, startPoint.y + int(44 * scale));
     dc.PolyBezier(topCurve, 4);
 
     // --- 3. Courbe inférieure ---
     POINT bottomCurve[4];
-    bottomCurve[0] = CPoint(startPoint.x + 95, startPoint.y + 44);   // Départ (sortie)
-    bottomCurve[1] = CPoint(startPoint.x + 69, startPoint.y + 79);   // Point de contrôle 1
-    bottomCurve[2] = CPoint(startPoint.x + 36, startPoint.y + 106);  // Point de contrôle 2
-    bottomCurve[3] = CPoint(startPoint.x, startPoint.y + 88);        // Arrivée (bas gauche)
+    bottomCurve[0] = CPoint(startPoint.x + width, startPoint.y + int(44 * scale));
+    bottomCurve[1] = CPoint(startPoint.x + int(69 * scale), startPoint.y + int(79 * scale));
+    bottomCurve[2] = CPoint(startPoint.x + int(36 * scale), startPoint.y + int(106 * scale));
+    bottomCurve[3] = CPoint(startPoint.x, startPoint.y + height);
     dc.PolyBezier(bottomCurve, 4);
 
-
     // --- 4. Point de sortie ---
-    outputPoint = CPoint(startPoint.x + 95, startPoint.y + 44);
+    outputPoint = CPoint(startPoint.x + width, startPoint.y + int(44 * scale));
 
+    // --- 5. Points d'entrée (position proportionnelle à la hauteur) ---
+    inputPoint1 = CPoint(startPoint.x, startPoint.y + int(height * 0.25)); // 25% du haut
+    inputPoint2 = CPoint(startPoint.x, startPoint.y + int(height * 0.75)); // 75% du haut
 
+    // --- 6. Affichage des états logiques ---
     CFont font;
-    font.CreatePointFont(100, _T("Arial"));  // Taille de police ajustée
+    font.CreatePointFont(int(100 * scale), _T("Arial"));
     CFont* oldFont = dc.SelectObject(&font);
     dc.SetBkMode(TRANSPARENT);
 
-
+    // Entrée 1
     CString input1(entre1 ? "1" : "0");
     dc.SetTextColor(entre1 ? APP_COLOR_HIGH : APP_COLOR_LOW);
-    dc.TextOut(inputPoint1.x - 15, inputPoint1.y - 34, input1);
+    dc.TextOut(inputPoint1.x - int(15 * scale), inputPoint1.y - int(20 * scale), input1);
 
-    // CORRECTION: Afficher entre2 (pas input1!)
+    // Entrée 2
     CString input2(entre2 ? "1" : "0");
     dc.SetTextColor(entre2 ? APP_COLOR_HIGH : APP_COLOR_LOW);
-    dc.TextOut(inputPoint2.x - 15, inputPoint2.y - 42, input2);
+    dc.TextOut(inputPoint2.x - int(15 * scale), inputPoint2.y - int(20 * scale), input2);
 
     dc.SelectObject(oldFont);
-
 
 }
 

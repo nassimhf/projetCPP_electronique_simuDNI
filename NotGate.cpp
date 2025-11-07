@@ -14,23 +14,14 @@ void NotGate::setStartPoint(CPoint pt)
 {
     startPoint = pt;
 
-    // Dimensions de la porte NOT
-    int gateWidth = 60;   // Largeur du triangle
-    int gateHeight = 40;  // Hauteur du triangle
-    int circleRadius = 8; // Rayon du petit cercle de négation
 
-    // Point de sortie (après le cercle)
-    outputPoint = CPoint(startPoint.x + gateWidth + circleRadius * 2, startPoint.y + gateHeight / 2);
-
-    // Point d'entrée (à gauche du triangle)
-    inputPoint = CPoint(startPoint.x, startPoint.y + gateHeight / 2);
 }
 
 void NotGate::draw(CClientDC& dc)
 {
-    int gateWidth = 60;
-    int gateHeight = 40;
-    int circleRadius = 8;
+    int gateWidth = 35;
+    int gateHeight = 26;
+    int circleRadius = 6;
 
     // --- Dessiner le triangle ---
     POINT triangle[4];
@@ -49,6 +40,13 @@ void NotGate::draw(CClientDC& dc)
 
     dc.Ellipse(circleLeft, circleTop, circleRight, circleBottom);
 
+
+    //mise a jour des I/O
+        // Point de sortie (après le cercle)
+    outputPoint = CPoint(startPoint.x + gateWidth + circleRadius * 2, startPoint.y + gateHeight / 2);
+
+    // Point d'entrée (à gauche du triangle)
+    inputPoint = CPoint(startPoint.x, startPoint.y + gateHeight / 2);
 
     CFont font;
     font.CreatePointFont(100, _T("Arial"));  // Taille de police ajustée

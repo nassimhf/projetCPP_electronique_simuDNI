@@ -35,11 +35,14 @@ private:
     int gateLevel;
     int maxLevel;
     int GateCounter;
+    float gateScale;
      // Données d'entrée pour les variables
 
     // Variables d'entrée actuelles
     map<string, int> currentInputValues;  // A->x, B->y, C->z
-
+    map<int, int> verticalOffsetsPerLevel;
+    int countLeaves(LogicExpression* expr);
+    int calculateSubtreeHeight(LogicExpression* expr);
     int calculateMaxDepth(LogicExpression* expr);
     
     // CHANGEMENT: Ajout du paramètre yOffset
@@ -53,13 +56,14 @@ public:
 
     InputDataVector inputData;
        // Évaluer l'expression avec les valeurs d'entrée
-    
+    float calculateGateScale();
     int calculateGateCount(LogicExpression* expr);
     int getGateCount();
+  
     bool evaluateExpression(LogicExpression* expr);
     SchemaDrawer(CClientDC* deviceContext);
     void drawSchema(string expression);
-    void drawSchemaWithInputs(string expression, InputData& inputs);
+    
     void setSpacing(int horizontal, int vertical); 
     int evaluateSchema(string expression, InputDataVector& inputs);
     void Clear(CClientDC* dc);

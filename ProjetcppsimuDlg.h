@@ -63,4 +63,9 @@ public:
 	
 
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+
+	CEdit m_mul;
+	afx_msg void OnBnClickedButtonIncrementemul();
+	
+	afx_msg void OnBnClickedButtonDecrementemul();
 };

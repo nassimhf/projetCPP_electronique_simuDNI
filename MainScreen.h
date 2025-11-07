@@ -21,6 +21,7 @@ public:
 	Chronogram chrono;
 	string m_expr;
 	string m_path;
+	int multiplicateur;
 
 // Données de boîte de dialogue
 #ifdef AFX_DESIGN_TIME

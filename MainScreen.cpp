@@ -115,19 +115,14 @@ void MainScreen::OnPaint()
 	CRect rect;
 	GetClientRect(&rect);
 
-	int separatorY = rect.Height() / 2 + 100;
-	DrawSeparatorWithLabel(&dc, separatorY, rect.Width()- 20, _T("CHRONOGRAMME"));
-
-
-
-
-	int separatorY2 = 60;
-	DrawSeparatorWithLabel(&dc, separatorY2, rect.Width() - 20, _T("SCHEMA"));
+	
 	SchemaDrawer drawer(&dc);
 
 
 	vector<InputDataVector> inputData;
 	vector<bool> resultVector;
+
+	vector<bool> resultVectorCurrent;
 	vector<int> times;
 	// Ou si tu veux vraiment CClientDC :
 	// CClientDC dc(this);
@@ -136,46 +131,58 @@ void MainScreen::OnPaint()
 	times = fileReader.getDelays();
 	inputData = fileReader.getPoints();
 
+
+	float width = rect.Width() - 200;
+	// Configurer et afficher
+	Chronogram chrono(_T("S"), 100, rect.Height() - 200);
+	int totaltime = 0;
+	for (int i : times) totaltime += i;
+
+	float timeScale = (width) / (float)totaltime;
+	chrono.setTimeScale(timeScale);  // 0.5 pixel = 1ms
+
+
+	//CString msg;
+	//msg.Format(_T("gateScale = %f"), drawer.calculateGateScale());  // %d convertit true → 1, false → 0
+
+	//AfxMessageBox(msg);
+
+
+	chrono.setStates(resultVector, times);
+	chrono.draw(&dc);
+
 	if (!m_expr.empty())
 	{
 		for (auto input : inputData)
 			{
 				bool result = drawer.evaluateSchema(m_expr, input);
 				resultVector.push_back(result);
-				drawer.inputData = input;
-				drawer.Clear(&dc);
-				drawer.drawSchema(m_expr);
-				
-				
 			}
 
-	
-		CString msg;
-		msg.Format(_T("maxdepth = %d"), drawer.getGateCount());  // %d convertit true → 1, false → 0
+		for (int i = 0; i < inputData.size();i++) {
 
-		AfxMessageBox(msg);
+			resultVectorCurrent.push_back(resultVector[i]);
+			drawer.inputData = inputData[i];
+			drawer.Clear(&dc);
+			drawer.drawSchema(m_expr);
+			chrono.setStates(resultVectorCurrent, times);
+			chrono.draw(&dc);
+			Sleep(times[i]* multiplicateur);
+		}
+
 	
 	}
+	int separatorY2 = 60;
+	DrawSeparatorWithLabel(&dc, separatorY2, rect.Width() - 20, _T("SCHEMA"));
+	int separatorY = rect.Height() - 300;
+	DrawSeparatorWithLabel(&dc, separatorY, rect.Width() - 20, _T("CHRONOGRAMME"));
 
+
+
+
+	
 		// Dessiner  schéma
 	
-
-	float width = rect.Width()-200;
-	// Configurer et afficher
-	Chronogram chrono(_T("S"), 100, 500);
-	int totaltime = 0;
-	for (int i : times) totaltime += i;
-
-	float timeScale = (width)/ (float)totaltime ;
-	chrono.setTimeScale(timeScale);  // 0.5 pixel = 1ms
-
-
-	//CString msg;
-	//msg.Format(_T("ERROR Reading file = %f"), timeScale);  // %d convertit true → 1, false → 0
-
-	//AfxMessageBox(msg);
-	chrono.setStates(resultVector, times);
-	chrono.draw(&dc);
 }
 // gestionnaires de messages de MainScreen
 void MainScreen::OnBnClickedRestart()

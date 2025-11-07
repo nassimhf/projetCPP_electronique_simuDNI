@@ -61,19 +61,25 @@ void Chronogram::draw(CDC* dc) {
     dc->SetBkMode(TRANSPARENT);
     dc->TextOut(startX - 80, startY + height / 2 - 10, signalName);
 
-    // Dessiner les axes
+    // --- DESSIN DE L'AXE X AVEC UNITÉ µS ---
     CPen axisPen(PS_SOLID, 2, RGB(0, 0, 0));
     CPen* oldPen = dc->SelectObject(&axisPen);
-    dc->MoveTo(startX, startY + height);
-    dc->LineTo(startX + getTotalWidth(), startY + height);
 
+    // Axe horizontal
+    int axisEndX = startX + getTotalWidth();
+    dc->MoveTo(startX, startY + height);
+    dc->LineTo(axisEndX, startY + height);
+
+    // Écriture unité µs à la fin de l'axe
+    CString unitStr(_T("µs"));
+    dc->TextOut(axisEndX + 15, startY + height - 10, unitStr);
+
+    // --- DESSIN DE LA GRILLE ET ANNOTATION DES TEMPS ---
     CPen gridPen(PS_DOT, 1, gridColor);
     dc->SelectObject(&gridPen);
-    dc->MoveTo(startX, startY);
-    dc->LineTo(startX + getTotalWidth(), startY);
 
-    // Dessin segment par segment
     int currentX = startX;
+    int cumulativeTime = 0; // Temps cumulé pour X
     bool previousState = states[0].state;
     int currentY = previousState ? startY : (startY + height);
 
@@ -92,26 +98,27 @@ void Chronogram::draw(CDC* dc) {
             currentY = newY;
         }
 
-        // Ligne horizontale
+        // Ligne horizontale du signal
         dc->MoveTo(currentX, currentY);
         dc->LineTo(currentX + segmentWidth, currentY);
 
-        // Annotation temps
+        // --- Annotation temps en µs, cumulée ---
+        cumulativeTime += st.timeMs;
         dc->SelectObject(oldFont);
         CFont timeFont;
         timeFont.CreatePointFont(80, _T("Arial"));
         dc->SelectObject(&timeFont);
         dc->SetTextColor(RGB(100, 100, 100));
         CString timeStr;
-        timeStr.Format(_T("%dms"), st.timeMs);
-        dc->TextOut(currentX + 5, startY + height + 10, timeStr);
+        timeStr.Format(_T("%d"), cumulativeTime); // temps cumulatif
+        dc->TextOut(currentX + segmentWidth - 15, startY + height + 10, timeStr);
 
         // Grille verticale
         dc->SelectObject(&gridPen);
         dc->MoveTo(currentX + segmentWidth, startY - 5);
         dc->LineTo(currentX + segmentWidth, startY + height + 5);
 
-        // Marqueur d'état
+        // Marqueur état
         dc->SelectObject(oldFont);
         CFont stateFont;
         stateFont.CreatePointFont(90, _T("Arial Bold"));
@@ -119,13 +126,10 @@ void Chronogram::draw(CDC* dc) {
         CString stateStr = st.state ? _T("1") : _T("0");
         COLORREF stateTextColor = st.state ? highColor : lowColor;
         dc->SetTextColor(stateTextColor);
-        int textY = st.state ? (startY - 20) : (startY + height + 30);
+        int textY = st.state ? (startY - 20) : (startY + height - 25);
         dc->TextOut(currentX + segmentWidth / 2 - 5, textY, stateStr);
 
         dc->SelectObject(oldPen);
-
-        // Attente selon le temps du segment
-        Sleep(st.timeMs);
 
         currentX += segmentWidth;
         previousState = st.state;

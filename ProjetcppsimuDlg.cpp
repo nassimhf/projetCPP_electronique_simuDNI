@@ -81,6 +81,7 @@ void CProjetcppsimuDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_EQ, m_editZone);
 
 	DDX_Control(pDX, IDC_EDIT_PATH, m_path_text);
+	DDX_Control(pDX, IDC_EDIT_MUL, m_mul);
 }
 
 BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
@@ -111,6 +112,9 @@ BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
 	ON_BN_CLICKED(IDCANCEL, &CProjetcppsimuDlg::OnBnClickedCancel)
 
 	ON_EN_CHANGE(IDC_EDIT_EQ, &CProjetcppsimuDlg::OnEnChangeEditEq)
+	
+	ON_BN_CLICKED(IDC_BUTTON_INCREMENTEMUL, &CProjetcppsimuDlg::OnBnClickedButtonIncrementemul)
+	ON_BN_CLICKED(IDC_BUTTON_DECREMENTEMUL, &CProjetcppsimuDlg::OnBnClickedButtonDecrementemul)
 END_MESSAGE_MAP()
 
 
@@ -119,6 +123,9 @@ END_MESSAGE_MAP()
 BOOL CProjetcppsimuDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+
+
+	m_mul.SetWindowText(_T("1"));
 
 	// Ajouter l'élément de menu "À propos de..." au menu Système.
 	SetBackgroundColor(APP_COLOR_LIGHT);
@@ -459,6 +466,12 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	mainScreen.m_expr = EXP_str;
 	mainScreen.m_path = FILE_str;
 
+
+	CString currentText;
+	m_mul.GetWindowText(currentText);   // récupère le texte actuel
+	int value = _ttoi(currentText);
+	mainScreen.multiplicateur = value;
+
 	INT_PTR result = mainScreen.DoModal();
 
 	if (result == IDCANCEL) {
@@ -506,4 +519,41 @@ void CProjetcppsimuDlg::OnBnClickedCancel()
 {
 	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
 	CDialogEx::OnCancel();
+}
+
+
+void CProjetcppsimuDlg::OnBnClickedButtonIncrementemul()
+{
+
+	CString currentText;
+	if (currentText == "1000") return;
+	m_mul.GetWindowText(currentText);   // récupère le texte actuel
+	int value = _ttoi(currentText);
+
+	if(value == 1) 
+	value+= 9;
+	else
+	value += 10;
+
+	CString str;
+	str.Format(_T("%d"), value);
+	m_mul.SetWindowText(str);
+
+}
+
+void CProjetcppsimuDlg::OnBnClickedButtonDecrementemul()
+{
+	CString currentText;
+	m_mul.GetWindowText(currentText);   // récupère le texte actuel
+
+	int value = _ttoi(currentText);
+	
+	
+	value -= 10;
+	if (value < 10) {
+		value = 1;
+	}
+	CString str;
+	str.Format(_T("%d"), value);
+	m_mul.SetWindowText(str);
 }

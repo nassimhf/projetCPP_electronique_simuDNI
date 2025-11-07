@@ -18,65 +18,74 @@ AndGate::AndGate()
 void AndGate::setStartPoint(CPoint pt)
 {
     startPoint = pt;
-    int gateHeight = 100;
-    int gateWidthRect = 60;
-    int arcRadius = 50;
-    outputPoint = CPoint(startPoint.x + gateWidthRect + arcRadius, startPoint.y + gateHeight / 2);
-    inputPoint1 = CPoint(startPoint.x, startPoint.y + 30);
-    inputPoint2 = CPoint(startPoint.x, startPoint.y + 70);
+
 }
 
-void AndGate::draw(CClientDC& dc)
+void AndGate::draw(CClientDC& dc, float scale)
 {
-    int gateHeight = 100;
-    int gateWidthRect = 60;
-    int arcRadius = 50;
+    const int baseHeight = 100;
+    const int baseWidthRect = 60;
+    const int baseArcRadius = 50;
 
-    // Créer le pinceau et le stylo avec des lignes plus épaisses
+    // --- Dimensions échelonnées ---
+    int gateHeight = int(baseHeight * scale);
+    int gateWidthRect = int(baseWidthRect * scale);
+    int arcRadius = int(baseArcRadius * scale);
+
+    // --- Création du pinceau et du stylo ---
     CBrush fillBrush(APP_COLOR_GATE_FILL);
-    CPen borderPen(PS_SOLID, 1, APP_COLOR_GATE_BORDER); // Ligne plus épaisse (4 au lieu de 2)
-
+    CPen borderPen(PS_SOLID, int(1 * scale), APP_COLOR_GATE_BORDER); // épaisseur proportionnelle
     CBrush* oldBrush = dc.SelectObject(&fillBrush);
     CPen* oldPen = dc.SelectObject(&borderPen);
 
-    // Dessiner la forme principale
+    // --- 1. Corps rectangulaire gauche ---
     dc.MoveTo(startPoint.x, startPoint.y + gateHeight);
     dc.LineTo(startPoint.x, startPoint.y);
     dc.LineTo(startPoint.x + gateWidthRect, startPoint.y);
     dc.MoveTo(startPoint.x, startPoint.y + gateHeight);
     dc.LineTo(startPoint.x + gateWidthRect, startPoint.y + gateHeight);
 
-    // Dessiner l'arc
+    // --- 2. Arc de droite ---
     int ellipseLeft = startPoint.x + (gateWidthRect - arcRadius);
     int ellipseTop = startPoint.y;
     int ellipseRight = startPoint.x + gateWidthRect + arcRadius;
     int ellipseBottom = startPoint.y + gateHeight;
+
     CPoint arcPtHaut(startPoint.x + gateWidthRect, startPoint.y);
     CPoint arcPtBas(startPoint.x + gateWidthRect, startPoint.y + gateHeight);
+
     dc.Arc(ellipseLeft, ellipseTop, ellipseRight, ellipseBottom,
         arcPtBas.x, arcPtBas.y, arcPtHaut.x, arcPtHaut.y);
 
+    // --- 3. Points d’entrée et de sortie (proportionnels à la taille) ---
+    inputPoint1 = CPoint(startPoint.x, startPoint.y + int(gateHeight * 0.25)); // entrée 1 à 25%
+    inputPoint2 = CPoint(startPoint.x, startPoint.y + int(gateHeight * 0.75)); // entrée 2 à 75%
+    outputPoint = CPoint(startPoint.x + gateWidthRect + arcRadius, startPoint.y + int(gateHeight * 0.5)); // sortie au centre
 
-
-
+    // --- 4. Texte sur les entrées ---
     CFont font;
-    font.CreatePointFont(100, _T("Arial"));  // Taille de police ajustée
+    font.CreatePointFont(int(100 * scale), _T("Arial"));
     CFont* oldFont = dc.SelectObject(&font);
     dc.SetBkMode(TRANSPARENT);
 
-
     CString input1(entre1 ? "1" : "0");
     dc.SetTextColor(entre1 ? APP_COLOR_HIGH : APP_COLOR_LOW);
-    dc.TextOut(inputPoint1.x - 26, inputPoint1.y - 20, input1);
+    dc.TextOut(inputPoint1.x - int(26 * scale), inputPoint1.y - int(20 * scale), input1);
 
-   
     CString input2(entre2 ? "1" : "0");
     dc.SetTextColor(entre2 ? APP_COLOR_HIGH : APP_COLOR_LOW);
-    dc.TextOut(inputPoint2.x - 26, inputPoint2.y - 20, input2);
+    dc.TextOut(inputPoint2.x - int(26 * scale), inputPoint2.y - int(20 * scale), input2);
 
     dc.SelectObject(oldFont);
-}
 
+    // --- 5. (Optionnel) Fil de sortie ---
+    // dc.MoveTo(outputPoint);
+    // dc.LineTo(outputPoint.x + int(20 * scale), outputPoint.y);
+
+    // --- Restauration des objets GDI ---
+    dc.SelectObject(oldPen);
+    dc.SelectObject(oldBrush);
+}
 // Getters/Setters
 bool AndGate::getEntre1() const { return entre1; }
 bool AndGate::getEntre2() const { return entre2; }

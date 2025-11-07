@@ -3,6 +3,7 @@
 #include "SchemaDrawer.h"
 #include "ExpressionParser.h"
 #include "Colors.h"
+#include <format>
 
 
 
@@ -10,10 +11,9 @@
 
 SchemaDrawer::SchemaDrawer(CClientDC* deviceContext)
     : dc(deviceContext), currentX(100), currentY(200),
-    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0),GateCounter(0){
+    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0), GateCounter(0), gateScale(1.0f) {
     
 }
-
 
 
 void SchemaDrawer::setSpacing(int horizontal, int vertical) {
@@ -61,6 +61,48 @@ int SchemaDrawer::calculateGateCount(LogicExpression* expr) {
 int SchemaDrawer::getGateCount() {
     return GateCounter;
 }
+
+float SchemaDrawer::calculateGateScale() {
+    
+    
+    const int gateCount = getGateCount();// Recuperer le nombre de porte
+    const float min_Scale = 0.4f; //scale minimum d une porte 
+    const float max_Scale = 1.0f; //scale maximum d une porte
+
+    const int minThreshold = 4;
+    const int maxThreshold = 10;
+
+
+
+    // ON RETURN min ou max si en dhors de l'interval
+    if (gateCount <= minThreshold)
+        return max_Scale;
+    if (gateCount >= maxThreshold)
+        return min_Scale;
+
+    float ratio = float(gateCount - minThreshold) / float(maxThreshold - minThreshold);
+
+    // Interpolation DÉCROISSANTE
+    float scale = max_Scale - ratio * (max_Scale - min_Scale);
+    return scale;
+
+}
+
+// Dans SchemaDrawer.cpp, ajoutez cette méthode :
+int SchemaDrawer::countLeaves(LogicExpression* expr) {
+    if (!expr) return 0;
+
+    if (expr->type == "VAR") {
+        return 1;
+    }
+
+    if (expr->type == "NOT") {
+        return countLeaves(expr->left);
+    }
+
+    // Pour AND, OR, XOR
+    return countLeaves(expr->left) + countLeaves(expr->right);
+}
 void SchemaDrawer::Clear(CClientDC* dc) {
     CRect rect;
     dc->GetWindow()->GetClientRect(&rect);
@@ -69,19 +111,27 @@ void SchemaDrawer::Clear(CClientDC* dc) {
     CBrush whiteBrush(APP_COLOR_LIGHT);
     dc->FillRect(&rect, &whiteBrush);
 }
+
+
+
 void SchemaDrawer::drawSchema(string expression) {
     ExpressionParser parser(expression);
     LogicExpression* expr = parser.parse();
     GateCounter = calculateGateCount(expr);
-
+    
+    gateScale = calculateGateScale();
+    gateSpacing = int(200 * gateScale);
+    verticalSpacing = int(150 * gateScale);
     // Calculer la profondeur maximale
     maxLevel = calculateMaxDepth(expr);
     // Dessiner à partir du niveau 0 (dernière porte)
+
+    
     CPoint output = drawExpression(expr, 0, 300, 0);
     dc->MoveTo(output);
     dc->LineTo(CPoint(output.x + 50, output.y));
     CFont font;
-    font.CreatePointFont(120, _T("Arial"));
+    font.CreatePointFont(90, _T("Arial"));
     CFont* oldFont = dc->SelectObject(&font);
     dc->SetBkMode(TRANSPARENT);
 
@@ -89,245 +139,190 @@ void SchemaDrawer::drawSchema(string expression) {
     dc->TextOut(output.x + 25, output.y - 28, text);
 }
 
+
+int SchemaDrawer::calculateSubtreeHeight(LogicExpression* expr) {
+    if (!expr) return 0;
+
+    if (expr->type == "VAR") {
+        return 1;  // Une variable = 1 unité de hauteur
+    }
+
+    if (expr->type == "NOT") {
+        return calculateSubtreeHeight(expr->left);  // NOT ne change pas la hauteur
+    }
+
+    // Pour AND, OR, XOR : la hauteur = somme des hauteurs des deux branches
+    int leftHeight = calculateSubtreeHeight(expr->left);
+    int rightHeight = calculateSubtreeHeight(expr->right);
+
+    return leftHeight + rightHeight;
+}
+
+
 CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY, int yOffset) {
     if (!expr) return CPoint(0, 0);
 
-    // POSITIONS FIXES basées sur le niveau
-    int fixedX =  (maxLevel - level) * gateSpacing;
-
-    // DÉCALAGE EN Y POUR CHAQUE PORTE - AMÉLIORATION
+    int fixedX = (maxLevel - level) * gateSpacing;
     int adjustedY = baseY + yOffset;
 
     if (expr->type == "VAR") {
-        // Variable - position fixe à l'extrême gauche
-  
-        
-        if (!expr->isNegated)
-        {
-          fixedX = currentX;
-        }
-	
         CFont font;
         font.CreatePointFont(120, _T("Arial"));
         CFont* oldFont = dc->SelectObject(&font);
         dc->SetBkMode(TRANSPARENT);
 
         CString text(expr->varName.c_str());
-        dc->SetTextColor(RGB(0,0,0));
+        dc->SetTextColor(RGB(0, 0, 0));
         dc->TextOut(fixedX, adjustedY, text);
-       
+
         dc->SelectObject(oldFont);
-        return CPoint(fixedX + 20, adjustedY + 10);
-       
+        return CPoint(fixedX + 20, adjustedY);
     }
 
     if (expr->type == "NOT") {
-      
-       
-        if (expr->left != nullptr && (expr->left->type == "VAR" || expr->left->type == "NOT")) {
-	
-        }
-
-        // PORTE NOT - COMPORTEMENT SPÉCIAL
         NotGate notGate;
-		notGate.setStartPoint(CPoint(fixedX, adjustedY));
+        notGate.setStartPoint(CPoint(fixedX, adjustedY));
         notGate.setEntree(evaluateExpression(expr->left) ? 1 : 0);
         notGate.draw(*dc);
-        
-        
-        // Pour NOT, on garde le même décalage Y pour l'entrée
+
         CPoint inputPoint = drawExpression(expr->left, level + 1, baseY, yOffset);
+        CPoint gateInput = CPoint(notGate.getInputPoint().x, notGate.getInputPoint().y);
 
-		CPoint gateInput = CPoint(notGate.getInputPoint().x, notGate.getInputPoint().y);
-        // ✅ Tracé avec virage à 90° pour éviter les diagonales
-        int midX = (inputPoint.x + notGate.getInputPoint().x) / 2;  // position intermédiaire horizontale
-
+        int midX = (inputPoint.x + notGate.getInputPoint().x) / 2;
         dc->MoveTo(inputPoint);
-        dc->LineTo(midX, inputPoint.y);      // ligne horizontale
-        dc->LineTo(midX, gateInput.y);       // ligne verticale
+        dc->LineTo(midX, inputPoint.y);
+        dc->LineTo(midX, gateInput.y);
         dc->LineTo(gateInput);
-
 
         return notGate.getOutputPoint();
     }
 
-    if (expr->type == "AND") {
+    if (expr->type == "AND" || expr->type == "OR" || expr->type == "XOR") {
 
-        if (expr->right!= nullptr && (expr->right->type =="VAR"|| expr->right->type == "NOT"))
-        {
-            
+        // ✅ DÉTECTER SI LES DEUX BRANCHES SONT SIMPLES (VAR ou NOT VAR)
+        bool leftIsSimple = (expr->left->type == "VAR" ||
+            (expr->left->type == "NOT" && expr->left->left && expr->left->left->type == "VAR"));
+        bool rightIsSimple = (expr->right->type == "VAR" ||
+            (expr->right->type == "NOT" && expr->right->left && expr->right->left->type == "VAR"));
+
+        int leftCenterY, rightCenterY;
+
+        if (leftIsSimple && rightIsSimple) {
+            // ✅ CAS SIMPLE : Les deux entrées sont des variables ou NOT(variable)
+            // Utiliser l'espacement minimal standard de la porte
+            int simpleSpacing = int(40 * gateScale);  // Espacement minimal
+            if (simpleSpacing < 20) simpleSpacing = 20;
+
+            leftCenterY = adjustedY - simpleSpacing;
+            rightCenterY = adjustedY + simpleSpacing;
         }
-        // PORTE AND - DÉCALAGE SPÉCIFIQUE
-        AndGate andGate;
-        
-        andGate.setStartPoint(CPoint(fixedX, adjustedY));
+        else {
+            // ✅ CAS COMPLEXE : Au moins une branche a des sous-arbres
+            int leftHeight = calculateSubtreeHeight(expr->left);
+            int rightHeight = calculateSubtreeHeight(expr->right);
+            int totalHeight = leftHeight + rightHeight;
 
-        andGate.setEntre1(evaluateExpression(expr->left) ? 1 : 0) ;
-        andGate.setEntre2(evaluateExpression(expr->right) ? 1 : 0) ;
-        andGate.draw(*dc);
-		
-        
-        // Points d'entrée de la porte AND
-       
+            const int baseUnitSpacing = 80;
+            int unitSpacing = int(baseUnitSpacing * gateScale);
+            if (unitSpacing < 40) unitSpacing = 40;
 
-        // DÉCALAGES DIFFÉRENTS POUR CHAQUE BRANCHE
-        int leftYOffset = yOffset - verticalSpacing / 2;  // Branche gauche plus haute
-        int rightYOffset = yOffset + verticalSpacing / 2; // Branche droite plus basse
+            int totalSpace = totalHeight * unitSpacing;
+            int startY = adjustedY - totalSpace / 2;
 
-        // Dessiner les entrées avec décalages différents
-        CPoint leftInput = drawExpression(expr->left, level + 1, baseY, leftYOffset);
-        CPoint rightInput = drawExpression(expr->right, level + 1, baseY, rightYOffset);
+            int leftSpace = leftHeight * unitSpacing;
+            int rightSpace = rightHeight * unitSpacing;
 
-        // Lignes horizontales alignées
-       // Lignes horizontales + verticales pour un alignement propre
-        int midX = (leftInput.x + andGate.getInputPoint1().x) / 2; // point intermédiaire
-        // ligne horizontale depuis la sortie gauche
-        dc->MoveTo(leftInput);
-        dc->LineTo(midX, leftInput.y);
-        // ligne verticale pour rejoindre la porte
-        dc->LineTo(midX, andGate.getInputPoint1().y);
-        // puis ligne horizontale finale
-        dc->LineTo(andGate.getInputPoint1());
-
- 
-
-
-        // Lignes horizontales alignées
-        // Lignes horizontales + verticales pour un alignement propre
-        int midY = (rightInput.x + andGate.getInputPoint2().x) / 2; // point intermédiaire
-        // ligne horizontale depuis la sortie gauche
-        dc->MoveTo(rightInput);
-        dc->LineTo(midY, rightInput.y);
-        // ligne verticale pour rejoindre la porte
-        dc->LineTo(midY, andGate.getInputPoint2().y);
-        // puis ligne horizontale finale
-        dc->LineTo(andGate.getInputPoint2());
-        
-
-        return andGate.getOutputPoint();
-    }
-
-    if (expr->type == "OR") {
-        
-     
-        if (expr->right != nullptr  && expr->right->type == "NOT")
-        {
-          
-            
+            leftCenterY = startY + leftSpace / 2;
+            rightCenterY = startY + leftSpace + rightSpace / 2;
         }
-        
-        // PORTE OR - DÉCALAGE SPÉCIFIQUE
-        OrGate orGate;
-        orGate.setStartPoint( CPoint(fixedX, adjustedY));
 
+        if (expr->type == "AND") {
+            AndGate andGate;
+            andGate.setStartPoint(CPoint(fixedX, adjustedY));
+            andGate.setEntre1(evaluateExpression(expr->left) ? 1 : 0);
+            andGate.setEntre2(evaluateExpression(expr->right) ? 1 : 0);
+            andGate.draw(*dc, calculateGateScale());
 
-        orGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
-        orGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
-        orGate.draw(*dc);
-		
+            CPoint leftInput = drawExpression(expr->left, level + 1, leftCenterY, 0);
+            CPoint rightInput = drawExpression(expr->right, level + 1, rightCenterY, 0);
 
+            int midX = (leftInput.x + andGate.getInputPoint1().x) / 2;
+            dc->MoveTo(leftInput);
+            dc->LineTo(midX, leftInput.y);
+            dc->LineTo(midX, andGate.getInputPoint1().y);
+            dc->LineTo(andGate.getInputPoint1());
 
-        // Points d'entrée de la porte OR
-        CPoint topInputGate(orGate.startPoint.x, orGate.startPoint.y + 22);
-        CPoint bottomInputGate(orGate.startPoint.x, orGate.startPoint.y + 66);
+            int midY = (rightInput.x + andGate.getInputPoint2().x) / 2;
+            dc->MoveTo(rightInput);
+            dc->LineTo(midY, rightInput.y);
+            dc->LineTo(midY, andGate.getInputPoint2().y);
+            dc->LineTo(andGate.getInputPoint2());
 
-        // DÉCALAGES DIFFÉRENTS POUR CHAQUE BRANCHE
-        int leftYOffset = yOffset - verticalSpacing / 2;  // Branche gauche plus haute
-        int rightYOffset = yOffset + verticalSpacing / 2; // Branche droite plus basse
+            return andGate.getOutputPoint();
+        }
 
-        // Dessiner les entrées avec décalages différents
-        CPoint leftInput = drawExpression(expr->left, level + 1, baseY, leftYOffset);
-        CPoint rightInput = drawExpression(expr->right, level + 1, baseY, rightYOffset);
+        if (expr->type == "OR") {
+            OrGate orGate;
+            orGate.setStartPoint(CPoint(fixedX, adjustedY));
+            orGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
+            orGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
+            orGate.draw(*dc, calculateGateScale());
 
-        // Lignes horizontales alignées
-        // Lignes horizontales alignées
-       // Lignes horizontales + verticales pour un alignement propre
-        int midX = (leftInput.x + topInputGate.x) / 2; // point intermédiaire
-        // ligne horizontale depuis la sortie gauche
-        dc->MoveTo(leftInput);
-        dc->LineTo(midX, leftInput.y);
-        // ligne verticale pour rejoindre la porte
-        dc->LineTo(midX, topInputGate.y);
-        // puis ligne horizontale finale
-        dc->LineTo(topInputGate);
+            CPoint leftInput = drawExpression(expr->left, level + 1, leftCenterY, 0);
+            CPoint rightInput = drawExpression(expr->right, level + 1, rightCenterY, 0);
 
+            CPoint topInputGate(orGate.getInputPoint1());
+            CPoint bottomInputGate(orGate.getInputPoint2());
 
+            int midX = (leftInput.x + topInputGate.x) / 2;
+            dc->MoveTo(leftInput);
+            dc->LineTo(midX, leftInput.y);
+            dc->LineTo(midX, topInputGate.y);
+            dc->LineTo(topInputGate);
 
+            int midY = (rightInput.x + bottomInputGate.x) / 2;
+            dc->MoveTo(rightInput);
+            dc->LineTo(midY, rightInput.y);
+            dc->LineTo(midY, bottomInputGate.y);
+            dc->LineTo(bottomInputGate);
 
-        // Lignes horizontales alignées
-        // Lignes horizontales + verticales pour un alignement propre
-        int midY = (rightInput.x + bottomInputGate.x) / 2; // point intermédiaire
-        // ligne horizontale depuis la sortie gauche
-        dc->MoveTo(rightInput);
-        dc->LineTo(midY, rightInput.y);
-        // ligne verticale pour rejoindre la porte
-        dc->LineTo(midY, bottomInputGate.y);
-        // puis ligne horizontale finale
-        dc->LineTo(bottomInputGate);
-        
-      
-        return orGate.outputPoint;
+            return orGate.outputPoint;
+        }
+
+        if (expr->type == "XOR") {
+            XorGate xorGate;
+            xorGate.setStartPoint(CPoint(fixedX, adjustedY));
+            xorGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
+            xorGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
+            xorGate.computeSortie();
+            xorGate.draw(*dc, calculateGateScale());
+
+            CPoint leftInput = drawExpression(expr->left, level + 1, leftCenterY, 0);
+            CPoint rightInput = drawExpression(expr->right, level + 1, rightCenterY, 0);
+
+            CPoint topInputGate(xorGate.getInputPoint1());
+            CPoint bottomInputGate(xorGate.getInputPoint2());
+
+            int midX = (leftInput.x + topInputGate.x) / 2;
+            dc->MoveTo(leftInput);
+            dc->LineTo(midX, leftInput.y);
+            dc->LineTo(midX, topInputGate.y);
+            topInputGate.x -= 5;
+            dc->LineTo(topInputGate);
+
+            int midY = (rightInput.x + bottomInputGate.x) / 2;
+            dc->MoveTo(rightInput);
+            dc->LineTo(midY, rightInput.y);
+            dc->LineTo(midY, bottomInputGate.y);
+            bottomInputGate.x -= 5;
+            dc->LineTo(bottomInputGate);
+
+            return xorGate.outputPoint;
+        }
     }
-
-    if (expr->type == "XOR") {
-     
-        // PORTE XOR - DÉCALAGE SPÉCIFIQUE
-        XorGate xorGate;
-	
-
-        xorGate.setStartPoint(CPoint(fixedX, adjustedY));
-
-        xorGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
-        xorGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
-        
-        
-	    xorGate.computeSortie();
-        xorGate.draw(*dc);
-
-        // Points d'entrée de la porte XOR
-        CPoint topInputGate(xorGate.startPoint.x, xorGate.startPoint.y + 22);
-        CPoint bottomInputGate(xorGate.startPoint.x, xorGate.startPoint.y + 66);
-
-        // DÉCALAGES DIFFÉRENTS POUR CHAQUE BRANCHE
-        int leftYOffset = yOffset - verticalSpacing / 2;  // Branche gauche plus haute
-        int rightYOffset = yOffset + verticalSpacing / 2; // Branche droite plus basse
-
-        // Dessiner les entrées avec décalages différents
-        CPoint leftInput = drawExpression(expr->left, level + 1, baseY, leftYOffset);
-        CPoint rightInput = drawExpression(expr->right, level + 1, baseY, rightYOffset);
-
-        // Lignes horizontales alignées
-       // Lignes horizontales + verticales pour un alignement propre
-        int midX = (leftInput.x + topInputGate.x) / 2; // point intermédiaire
-        // ligne horizontale depuis la sortie gauche
-        dc->MoveTo(leftInput);
-        dc->LineTo(midX, leftInput.y);
-        // ligne verticale pour rejoindre la porte
-        dc->LineTo(midX, topInputGate.y);
-        // puis ligne horizontale finale
-        topInputGate.x -= 5; // Ajustement pour le cercle de sortie
-        dc->LineTo(topInputGate);
-
-
-        // Lignes horizontales alignées
-        // Lignes horizontales + verticales pour un alignement propre
-        int midY = (rightInput.x + bottomInputGate.x) / 2; // point intermédiaire
-        // ligne horizontale depuis la sortie gauche
-        dc->MoveTo(rightInput);
-        dc->LineTo(midY, rightInput.y);
-        // ligne verticale pour rejoindre la porte
-        dc->LineTo(midY, bottomInputGate.y);
-        // puis ligne horizontale finale
-        bottomInputGate.x -= 5; // Ajustement pour le cercle de sortie
-        dc->LineTo(bottomInputGate);
-
-       
-
-        return xorGate.outputPoint;
-    }
-		
     return CPoint(0, 0);
 }
+
 
 bool SchemaDrawer::evaluateExpression(LogicExpression* expr) {
     if (!expr) return 0;
