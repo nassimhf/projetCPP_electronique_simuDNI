@@ -95,9 +95,7 @@ void MainScreen::DoDataExchange(CDataExchange* pDX)
 void MainScreen::SetChronogramData(vector<bool> states, vector<int> times)
 {
 	chrono.setSignalName(_T("Signal A"));
-	chrono.setPosition(100, 150);
 	chrono.setHeight(60);
-	chrono.setTimeScale(0.5f);  // 0.5 pixel par ms
 	chrono.setStates(states, times);
 }
 
@@ -134,7 +132,7 @@ void MainScreen::OnPaint()
 
 	float width = rect.Width() - 200;
 	// Configurer et afficher
-	Chronogram chrono(_T("S"), 100, rect.Height() - 200);
+	Chronogram chrono(_T("S"), 100, rect.Height() - 130);
 	int totaltime = 0;
 	for (int i : times) totaltime += i;
 
@@ -150,6 +148,9 @@ void MainScreen::OnPaint()
 
 	chrono.setStates(resultVector, times);
 	chrono.draw(&dc);
+	
+	int separatorY = rect.Height() - 160;
+	int separatorY2 = 20;
 
 	if (!m_expr.empty())
 	{
@@ -167,22 +168,18 @@ void MainScreen::OnPaint()
 			drawer.drawSchema(m_expr);
 			chrono.setStates(resultVectorCurrent, times);
 			chrono.draw(&dc);
+			DrawSeparatorWithLabel(&dc, separatorY2, rect.Width() - 20, _T("SCHEMA"));
+
+			DrawSeparatorWithLabel(&dc, separatorY, rect.Width() - 20, _T("CHRONOGRAMME"));
+
+
 			Sleep(times[i]* multiplicateur);
 		}
 
 	
 	}
-	int separatorY2 = 60;
-	DrawSeparatorWithLabel(&dc, separatorY2, rect.Width() - 20, _T("SCHEMA"));
-	int separatorY = rect.Height() - 300;
-	DrawSeparatorWithLabel(&dc, separatorY, rect.Width() - 20, _T("CHRONOGRAMME"));
 
 
-
-
-	
-		// Dessiner  schéma
-	
 }
 // gestionnaires de messages de MainScreen
 void MainScreen::OnBnClickedRestart()

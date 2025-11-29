@@ -14,7 +14,7 @@ public:
 	CEdit m_editZone;
 	CEdit m_path_text;
 	CFont m_fontStatic;
-	
+	int compteur=0;
 
 	afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 

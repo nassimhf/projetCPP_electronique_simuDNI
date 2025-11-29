@@ -308,20 +308,23 @@ HCURSOR CProjetcppsimuDlg::OnQueryDragIcon()
 
 
 void CProjetcppsimuDlg::OnBnClickedButtonB() ////////////
-{
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("Y");                  // ajoute "A" à la suite
-	m_editZone.SetWindowText(currentText);
+{	
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T("Y");                  // ajoute "A" à la suite
+		m_editZone.SetWindowText(currentText);
+	}
 }
 
 void CProjetcppsimuDlg::OnBnClickedButtonA2() ////////////
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("X");                  // ajoute "A" à la suite
-	m_editZone.SetWindowText(currentText);
-	
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T("X");                  // ajoute "A" à la suite
+		m_editZone.SetWindowText(currentText);
+	}
 	
 }
 
@@ -331,10 +334,12 @@ void CProjetcppsimuDlg::OnBnClickedButtonA2() ////////////
 
 void CProjetcppsimuDlg::OnBnClickedButtonC() /////////////
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("Z");                  // ajoute "A" à la suite
-	m_editZone.SetWindowText(currentText);
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T("Z");                  // ajoute "A" à la suite
+		m_editZone.SetWindowText(currentText);
+	}
 }
 
 void CProjetcppsimuDlg::OnEnChangeEditEq() ////////////////
@@ -350,51 +355,68 @@ void CProjetcppsimuDlg::OnEnChangeEditEq() ////////////////
 
 void CProjetcppsimuDlg::OnBnClickedButtonOr()
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T(" OR ");                  // ajoute "A" à la suite
-	m_editZone.SetWindowText(currentText);
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(" OR ");                  // ajoute "A" à la suite
+		m_editZone.SetWindowText(currentText);
+		compteur++;
+	}
+	
 }
 
 
 void CProjetcppsimuDlg::OnBnClickedButtonAnd()
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T(" AND ");                  // ajoute "A" à la suite
-	m_editZone.SetWindowText(currentText);
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(" AND ");                  // ajoute "A" à la suite
+		m_editZone.SetWindowText(currentText);
+		compteur++;
+	}
 }
 
 void CProjetcppsimuDlg::OnBnClickedButtonXor()
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T(" XOR ");                  
-	m_editZone.SetWindowText(currentText);
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(" XOR ");
+		m_editZone.SetWindowText(currentText);
+		compteur++;
+	}
 }
 
 void CProjetcppsimuDlg::OnBnClickedButtonNot()
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T(" NOT ");                  
-	m_editZone.SetWindowText(currentText);
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(" NOT ");
+		m_editZone.SetWindowText(currentText);
+		compteur++;
+	}
 }
 
 void CProjetcppsimuDlg::OnBnClickedButtonOp()
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T("(");                  
-	m_editZone.SetWindowText(currentText);
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T("(");
+		m_editZone.SetWindowText(currentText);
+	}
 }
 
 void CProjetcppsimuDlg::OnBnClickedButtonCp()
 {
-	CString currentText;
-	m_editZone.GetWindowText(currentText);   // récupère le texte actuel
-	currentText += _T(")");                  // ajoute "A" à la suite
-	m_editZone.SetWindowText(currentText);
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(")");                  // ajoute "A" à la suite
+		m_editZone.SetWindowText(currentText);
+	}
 }
 
 
@@ -407,10 +429,17 @@ void CProjetcppsimuDlg::OnBnClickedButtonDel()
 	int len = currentText.GetLength();
 	if (len > 0)
 	{
-		if (len >= 4 && currentText.Right(4) == _T(" OR ")) currentText.Delete(len - 4, 4);
-		else if (len >= 5 && currentText.Right(5) == _T(" AND ")) currentText.Delete(len - 5, 5);
-		else if (len >= 5 && currentText.Right(5) == _T(" XOR ")) currentText.Delete(len - 5, 5);
-		else if (len >= 5 && currentText.Right(5) == _T(" NOT ")) currentText.Delete(len - 5, 5);
+		if (len >= 4 && currentText.Right(4) == _T(" OR "))
+		{
+			currentText.Delete(len - 4, 4);
+			compteur = compteur - 1;
+		}
+
+
+		else if (len >= 5 && (currentText.Right(5) == _T(" AND ") || currentText.Right(5) == _T(" XOR ") || currentText.Right(5) == _T(" NOT "))) {
+			currentText.Delete(len - 5, 5);
+			compteur = compteur-1;
+		}
 			
 		else currentText.Delete(len - 1, 1);      // supprime le dernier caractère}
 		
@@ -420,6 +449,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonDel()
 
 void CProjetcppsimuDlg::OnBnClickedButtonClear()
 {
+	compteur = 0;
 	m_editZone.SetWindowText(_T(""));
 }
 
@@ -434,7 +464,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	CString expression;
 	m_editZone.GetWindowText(expression);
 
-	// ✅ VÉRIFICATION AVANT DE CONTINUER
+	
 	if (expression.IsEmpty()) {
 		AfxMessageBox(_T("Veuillez entrer une expression logique !"), MB_ICONWARNING | MB_OK);
 		return;
@@ -443,7 +473,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonSave()
 	CT2CA exprConverted(expression);
 	std::string EXP_str(exprConverted);
 
-	// ✅ TESTER L'EXPRESSION
+	 
 	ExpressionParser testParser(EXP_str);
 	LogicExpression* testExpr = testParser.parse();
 

@@ -10,8 +10,8 @@
 
 
 SchemaDrawer::SchemaDrawer(CClientDC* deviceContext)
-    : dc(deviceContext), currentX(100), currentY(200),
-    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0), GateCounter(0), gateScale(1.0f) {
+    : dc(deviceContext), currentX(100), currentY(100),
+    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0), GateCounter(0), gateScale(0.7f) {
     
 }
 
@@ -66,15 +66,15 @@ float SchemaDrawer::calculateGateScale() {
     
     
     const int gateCount = getGateCount();// Recuperer le nombre de porte
-    const float min_Scale = 0.4f; //scale minimum d une porte 
-    const float max_Scale = 1.0f; //scale maximum d une porte
+    const float min_Scale = 0.3f; //scale minimum d une porte 
+    const float max_Scale = 0.7f; //scale maximum d une porte
 
     const int minThreshold = 4;
     const int maxThreshold = 10;
 
 
 
-    // ON RETURN min ou max si en dhors de l'interval
+    // ON RETURN min ou max si en dehors de l'interval
     if (gateCount <= minThreshold)
         return max_Scale;
     if (gateCount >= maxThreshold)
@@ -127,7 +127,7 @@ void SchemaDrawer::drawSchema(string expression) {
     // Dessiner à partir du niveau 0 (dernière porte)
 
     
-    CPoint output = drawExpression(expr, 0, 300, 0);
+    CPoint output = drawExpression(expr, 0, 200, 0);
     dc->MoveTo(output);
     dc->LineTo(CPoint(output.x + 50, output.y));
     CFont font;
@@ -167,7 +167,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
 
     if (expr->type == "VAR") {
         CFont font;
-        font.CreatePointFont(120, _T("Arial"));
+        font.CreatePointFont(80, _T("Arial"));
         CFont* oldFont = dc->SelectObject(&font);
         dc->SetBkMode(TRANSPARENT);
 
@@ -208,7 +208,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         int leftCenterY, rightCenterY;
 
         if (leftIsSimple && rightIsSimple) {
-            // ✅ CAS SIMPLE : Les deux entrées sont des variables ou NOT(variable)
+
             // Utiliser l'espacement minimal standard de la porte
             int simpleSpacing = int(40 * gateScale);  // Espacement minimal
             if (simpleSpacing < 20) simpleSpacing = 20;

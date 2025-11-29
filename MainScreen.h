@@ -2,7 +2,6 @@
 #include "afxdialogex.h"
 #include <string>
 #include "Chronogram.h"
-#include <thread>
 #include <atomic>
 using namespace std;
 
