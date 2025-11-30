@@ -1,4 +1,3 @@
-// MainScreen.cpp : fichier d'implémentation
 //
 
 #include "pch.h"
@@ -15,10 +14,10 @@
 
 IMPLEMENT_DYNAMIC(MainScreen, CDialogEx)
 
-MainScreen::MainScreen(CWnd* pParent /*=nullptr*/)
+MainScreen::MainScreen(CWnd* pParent)
 	: CDialogEx(IDD_DIALOG1, pParent)
 {
-	
+	multiplicateur = 1;
 }
 
 void DrawSeparatorWithLabel(CDC* dc, int y, int width, CString label) {
@@ -57,29 +56,35 @@ BOOL MainScreen::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
+	// Ajouter l'icône de menu système
+	CMenu* pSysMenu = GetSystemMenu(FALSE);
+	if (pSysMenu != nullptr)
+	{
+		CString strAboutMenu;
+		if (strAboutMenu.LoadString(IDS_ABOUTBOX))
+		{
+			pSysMenu->AppendMenu(MF_SEPARATOR);
+			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+		}
+	}
+
+	// Définir icône
+	SetIcon(AfxGetApp()->LoadIcon(IDR_MAINFRAME), TRUE);  // grande icône
+	SetIcon(AfxGetApp()->LoadIcon(IDR_MAINFRAME), FALSE); // petite icône
+
 	// Ajouter l'élément de menu "À propos de..." au menu Système.
 	SetBackgroundColor(APP_COLOR_LIGHT);
 	// IDM_ABOUTBOX doit se trouver dans la plage des commandes système.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
 
-	CMenu* pSysMenu = GetSystemMenu(FALSE);
-	if (pSysMenu != nullptr)
-	{
-		BOOL bNameValid;
-		CString strAboutMenu;
-		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
-		ASSERT(bNameValid);
-		if (!strAboutMenu.IsEmpty())
-		{
-			pSysMenu->AppendMenu(MF_SEPARATOR);
-			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
-		}
-	}
+	
 	// Définir l'icône de cette boîte de dialogue.  L'infrastructure effectue cela automatiquement
 	//  lorsque la fenêtre principale de l'application n'est pas une boîte de dialogue
 	
 	// TODO: ajoutez ici une initialisation supplémentaire
+
+
 
 	return TRUE;  // retourne TRUE, sauf si vous avez défini le focus sur un contrôle
 }
@@ -163,7 +168,7 @@ void MainScreen::OnPaint()
 		for (int i = 0; i < inputData.size();i++) {
 
 			resultVectorCurrent.push_back(resultVector[i]);
-			drawer.inputData = inputData[i];
+			drawer.setInputData( inputData[i]);
 			drawer.Clear(&dc);
 			drawer.drawSchema(m_expr);
 			chrono.setStates(resultVectorCurrent, times);

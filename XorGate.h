@@ -1,5 +1,9 @@
 #pragma once
 
+// Cette classe permet de dessiner une porte logique XOR grace a la fonction draw()
+// la fonction setStartPoint() permet de définir la position (x,y) de la porte
+
+
 class XorGate
 {
 public:
@@ -11,11 +15,8 @@ public:
     CPoint outputPoint;  // point de sortie
     CPoint inputPoint1;  // entrée 1
     CPoint inputPoint2;  // entrée 2
-    // NOUVEAUX: Pour stocker les portes connectées en entrée
-    XorGate* inputGate1;
-    XorGate* inputGate2;
-    bool isInput1Variable;  // true si entrée 1 est une variable (X,Y,Z)
-    bool isInput2Variable;  // true si entrée 2 est une variable (X,Y,Z)
+   
+
 public:
     XorGate();
 
@@ -35,15 +36,4 @@ public:
     CPoint getInputPoint1() const;
     CPoint getInputPoint2() const;
 
-    // NOUVEAU: Méthode pour calculer le résultat
-    void computeSortie();
-
-    // NOUVEAU: Connecter des portes en entrée
-    void connectInput1Gate(XorGate* gate);
-    void connectInput2Gate(XorGate* gate);
-    void setInput1AsVariable(bool val);
-    void setInput2AsVariable(bool val);
-
-    // NOUVEAU: Calculer récursivement
-    bool evaluate();
 };

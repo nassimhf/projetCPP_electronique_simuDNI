@@ -1,15 +1,12 @@
 ﻿#include "pch.h"
 #include "XorGate.h"
-#include "GraphicsUtils.h"
+
 #include "Colors.h"
 XorGate::XorGate()
 {
     entre1 = false;
     entre2 = false;
-    inputGate1 = nullptr;
-    inputGate2 = nullptr;
-    isInput1Variable = false;
-    isInput2Variable = false;
+    
 }
 
 void XorGate::setStartPoint(CPoint pt)
@@ -122,47 +119,3 @@ CPoint XorGate::getOutputPoint() const { return outputPoint; }
 CPoint XorGate::getInputPoint1() const { return inputPoint1; }
 CPoint XorGate::getInputPoint2() const { return inputPoint2; }
 
-// NOUVELLES MÉTHODES
-void XorGate::connectInput1Gate(XorGate* gate) {
-    inputGate1 = gate;
-    isInput1Variable = false;
-}
-
-void XorGate::connectInput2Gate(XorGate* gate) {
-    inputGate2 = gate;
-    isInput2Variable = false;
-}
-
-void XorGate::setInput1AsVariable(bool val) {
-    isInput1Variable = true;
-    entre1 = val;
-}
-
-void XorGate::setInput2AsVariable(bool val) {
-    isInput2Variable = true;
-    entre2 = val;
-}
-
-void XorGate::computeSortie()
-{
-    sortie = entre1 ^ entre2;
-}
-
-// ÉVALUATION RÉCURSIVE
-bool XorGate::evaluate()
-{
-    // Si entrée 1 n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInput1Variable && inputGate1 != nullptr) {
-        entre1 = inputGate1->evaluate();
-    }
-
-    // Si entrée 2 n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInput2Variable && inputGate2 != nullptr) {
-        entre2 = inputGate2->evaluate();
-    }
-
-    // Calculer la sortie
-    computeSortie();
-
-    return sortie;
-}

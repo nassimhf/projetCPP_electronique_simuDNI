@@ -1,4 +1,9 @@
 // AndGate.h
+
+
+// Cette classe permet de dessiner une porte logique AND grace a la fonction draw()
+// la fonction setStartPoint() permet de définir la position (x,y) de la porte
+//
 #ifndef ANDGATE_H
 #define ANDGATE_H
 
@@ -15,11 +20,7 @@ private:
     CPoint inputPoint1;
     CPoint inputPoint2;
 
-    // NOUVEAUX: Pour stocker les portes connectées en entrée
-    AndGate* inputGate1;
-    AndGate* inputGate2;
-    bool isInput1Variable;  // true si entrée 1 est une variable (X,Y,Z)
-    bool isInput2Variable;  // true si entrée 2 est une variable (X,Y,Z)
+ 
 
 public:
     AndGate();
@@ -37,17 +38,11 @@ public:
     CPoint getInputPoint1() const;
     CPoint getInputPoint2() const;
 
-    // NOUVEAU: Méthode pour calculer le résultat
-    void computeSortie();
+  
 
-    // NOUVEAU: Connecter des portes en entrée
-    void connectInput1Gate(AndGate* gate);
-    void connectInput2Gate(AndGate* gate);
-    void setInput1AsVariable(bool val);
-    void setInput2AsVariable(bool val);
+  
 
-    // NOUVEAU: Calculer récursivement
-    bool evaluate();
+   
 };
 
 #endif

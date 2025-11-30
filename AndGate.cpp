@@ -1,6 +1,7 @@
 // AndGate.cpp
+
 #include "pch.h"
-#include "GraphicsUtils.h"
+
 #include "AndGate.h"
 #include "Colors.h"
 
@@ -9,10 +10,7 @@ AndGate::AndGate()
     entre1 = false;
     entre2 = false;
     sortie = false;
-    inputGate1 = nullptr;
-    inputGate2 = nullptr;
-    isInput1Variable = false;
-    isInput2Variable = false;
+    
 }
 
 void AndGate::setStartPoint(CPoint pt)
@@ -97,46 +95,4 @@ CPoint AndGate::getInputPoint1() const { return inputPoint1; }
 CPoint AndGate::getInputPoint2() const { return inputPoint2; }
 
 
-void AndGate::connectInput1Gate(AndGate* gate) {
-    inputGate1 = gate;
-    isInput1Variable = false;
-}
 
-void AndGate::connectInput2Gate(AndGate* gate) {
-    inputGate2 = gate;
-    isInput2Variable = false;
-}
-
-void AndGate::setInput1AsVariable(bool val) {
-    isInput1Variable = true;
-    entre1 = val;
-}
-
-void AndGate::setInput2AsVariable(bool val) {
-    isInput2Variable = true;
-    entre2 = val;
-}
-
-void AndGate::computeSortie()
-{
-    sortie = entre1 && entre2;
-}
-
-// ÉVALUATION RÉCURSIVE
-bool AndGate::evaluate()
-{
-    // Si entrée 1 n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInput1Variable && inputGate1 != nullptr) {
-        entre1 = inputGate1->evaluate();
-    }
-
-    // Si entrée 2 n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInput2Variable && inputGate2 != nullptr) {
-        entre2 = inputGate2->evaluate();
-    }
-
-    // Calculer la sortie
-    computeSortie();
-
-    return sortie;
-}

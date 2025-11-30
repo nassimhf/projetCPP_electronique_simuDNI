@@ -1,20 +1,16 @@
 ﻿
-
 #include <afxwin.h>
 #include "pch.h"
 #include "OrGate.h"
-#include "GraphicsUtils.h"
-#include "Colors.h"
 
+#include "Colors.h"
+  
 OrGate::OrGate()
 {
     entre1 = false;
     entre2 = false;
     sortie = false;
-    inputGate1 = nullptr;
-    inputGate2 = nullptr;
-    isInput1Variable = false;
-    isInput2Variable = false;
+   
 }
 void OrGate::setStartPoint(CPoint pt)
 {
@@ -95,7 +91,7 @@ void OrGate::draw(CClientDC& dc,float scale)
 
 }
 
-// Getters/Setters
+// Getters & Setters
 bool OrGate::getEntre1() const { return entre1; }
 bool OrGate::getEntre2() const { return entre2; }
 bool OrGate::getSortie() const { return sortie; }
@@ -104,48 +100,3 @@ void OrGate::setEntre2(bool val) { entre2 = val; }
 CPoint OrGate::getOutputPoint() const { return outputPoint; }
 CPoint OrGate::getInputPoint1() const { return inputPoint1; }
 CPoint OrGate::getInputPoint2() const { return inputPoint2; }
-
-// NOUVELLES MÉTHODES
-void OrGate::connectInput1Gate(OrGate* gate) {
-    inputGate1 = gate;
-    isInput1Variable = false;
-}
-
-void OrGate::connectInput2Gate(OrGate* gate) {
-    inputGate2 = gate;
-    isInput2Variable = false;
-}
-
-void OrGate::setInput1AsVariable(bool val) {
-    isInput1Variable = true;
-    entre1 = val;
-}
-
-void OrGate::setInput2AsVariable(bool val) {
-    isInput2Variable = true;
-    entre2 = val;
-}
-
-void OrGate::computeSortie()
-{
-    sortie = entre1 || entre2;
-}
-
-// ÉVALUATION RÉCURSIVE
-bool OrGate::evaluate()
-{
-    // Si entrée 1 n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInput1Variable && inputGate1 != nullptr) {
-        entre1 = inputGate1->evaluate();
-    }
-
-    // Si entrée 2 n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInput2Variable && inputGate2 != nullptr) {
-        entre2 = inputGate2->evaluate();
-    }
-
-    // Calculer la sortie
-    computeSortie();
-
-    return sortie;
-}

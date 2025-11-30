@@ -1,13 +1,11 @@
 #include "pch.h"
-#include "GraphicsUtils.h"
 #include "NotGate.h"
 
 NotGate::NotGate()
 {
     entree = false;
-    sortie = true;  // NOT de false = true
-    inputGate = nullptr;
-    isInputVariable = false;
+    sortie = true; 
+    
 }
 
 void NotGate::setStartPoint(CPoint pt)
@@ -74,7 +72,7 @@ bool NotGate::getSortie() const {
 
 void NotGate::setEntree(bool val) {
     entree = val;
-    computeSortie();  // Recalculer automatiquement
+
 }
 
 CPoint NotGate::getOutputPoint() const {
@@ -85,39 +83,3 @@ CPoint NotGate::getInputPoint() const {
     return inputPoint;
 }
 
-// Connexion des portes
-void NotGate::connectInputGate(void* gate) {
-    inputGate = gate;
-    isInputVariable = false;
-}
-
-void NotGate::setInputAsVariable(bool val) {
-    isInputVariable = true;
-    entree = val;
-}
-
-// Calcul de la sortie
-void NotGate::computeSortie()
-{
-    sortie = !entree;  // Logique NOT
-}
-
-// Évaluation récursive
-bool NotGate::evaluate()
-{
-    // Si l'entrée n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInputVariable && inputGate != nullptr) {
-        // On doit caster selon le type de porte
-        // Pour simplifier, on suppose que toutes les portes ont une méthode evaluate()
-        // Tu pourrais utiliser un polymorphisme avec une classe de base Gate
-
-        // SOLUTION TEMPORAIRE: Cast vers AndGate (tu devras améliorer ça)
-        // Mieux: créer une classe de base abstraite Gate avec evaluate()
-        entree = ((NotGate*)inputGate)->evaluate();
-    }
-
-    // Calculer la sortie NOT
-    computeSortie();
-
-    return sortie;
-}

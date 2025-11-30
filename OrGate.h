@@ -12,10 +12,7 @@ public:
     CPoint inputPoint1; // entrée 1
     CPoint inputPoint2; // entrée 2
 
-    OrGate* inputGate1;
-    OrGate* inputGate2;
-    bool isInput1Variable;  // true si entrée 1 est une variable (X,Y,Z)
-    bool isInput2Variable;  // true si entrée 2 est une variable (X,Y,Z)
+ 
 public:
     OrGate();
     void setStartPoint(CPoint pt);
@@ -32,15 +29,4 @@ public:
     CPoint getInputPoint1() const;
     CPoint getInputPoint2() const;
 
-    // NOUVEAU: Méthode pour calculer le résultat
-    void computeSortie();
-
-    // NOUVEAU: Connecter des portes en entrée
-    void connectInput1Gate(OrGate* gate);
-    void connectInput2Gate(OrGate* gate);
-    void setInput1AsVariable(bool val);
-    void setInput2AsVariable(bool val);
-
-    // NOUVEAU: Calculer récursivement
-    bool evaluate();
 };

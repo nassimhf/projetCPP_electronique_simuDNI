@@ -112,6 +112,16 @@ void SchemaDrawer::Clear(CClientDC* dc) {
     dc->FillRect(&rect, &whiteBrush);
 }
 
+InputDataVector SchemaDrawer::getInputData()
+{
+    return inputData   ;
+}
+
+void SchemaDrawer::setInputData(InputDataVector data)
+{
+    inputData = data;
+}
+
 
 
 void SchemaDrawer::drawSchema(string expression) {
@@ -294,7 +304,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
             xorGate.setStartPoint(CPoint(fixedX, adjustedY));
             xorGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
             xorGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
-            xorGate.computeSortie();
+          
             xorGate.draw(*dc, calculateGateScale());
 
             CPoint leftInput = drawExpression(expr->left, level + 1, leftCenterY, 0);

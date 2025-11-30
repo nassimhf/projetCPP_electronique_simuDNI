@@ -189,7 +189,6 @@
     <ClInclude Include="ExpressionParser.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="GraphicsUtils.h" />
     <ClInclude Include="InputData.h" />
     <ClInclude Include="LogicExpression.h" />
     <ClInclude Include="MainScreen.h" />
@@ -209,7 +208,6 @@
     <ClCompile Include="Colors.cpp" />
     <ClCompile Include="ExpressionParser.cpp" />
     <ClCompile Include="FileReader.cpp" />
-    <ClCompile Include="GraphicsUtils.cpp" />
     <ClCompile Include="InputData.cpp" />
     <ClCompile Include="LogicExpression.cpp" />
     <ClCompile Include="MainScreen.cpp" />

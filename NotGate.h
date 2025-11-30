@@ -12,9 +12,6 @@ private:
     CPoint outputPoint;
     CPoint inputPoint;
 
-    // NOUVEAUX: Pour stocker la porte connectée en entrée
-    void* inputGate;  // Peut être AndGate, OrGate, XorGate, ou NotGate
-    bool isInputVariable;  // true si entrée est une variable (X,Y,Z)
 
 public:
     NotGate();
@@ -29,15 +26,7 @@ public:
     CPoint getOutputPoint() const;
     CPoint getInputPoint() const;
 
-    // Calcul du résultat
-    void computeSortie();
-
-    // Connexion des portes
-    void connectInputGate(void* gate);
-    void setInputAsVariable(bool val);
-
-    // Évaluation récursive
-    bool evaluate();
+   
 };
 
 #endif
