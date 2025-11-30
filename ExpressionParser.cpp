@@ -10,9 +10,9 @@ void ExpressionParser::removeSpaces() {
 }
 
 bool ExpressionParser::validateExpression() {
-   
+
     // VÉRIFICATION FICHIER VIDE
-  
+
     if (expression.empty()) {
         errorMessage = "ERREUR : Le fichier est vide !\n\nVeuillez entrer une expression logique valide.";
         hasError = true;
@@ -33,15 +33,15 @@ bool ExpressionParser::validateExpression() {
         return false;
     }
 
-   
+
     //  VÉRIFICATION DES CARACTÈRES INVALIDES
-  
+
     for (size_t i = 0; i < expression.length(); i++) {
         char c = expression[i];
 
-        // Caractères autorisés: lettres majuscules, parenthèses, espaces
+        // Caractères autorisés: lettres majuscules, parenthèses, espaces, virgule (pour DFF)
         bool isValid = (c >= 'A' && c <= 'Z') ||
-            c == '(' || c == ')' ||
+            c == '(' || c == ')' || c == ',' ||
             c == ' ' || c == '\t' || c == '\n' || c == '\r';
 
         if (!isValid) {
@@ -68,14 +68,15 @@ bool ExpressionParser::validateExpression() {
                 errorMessage += "• AND pour ET logique\n";
                 errorMessage += "• OR pour OU logique\n";
                 errorMessage += "• XOR pour OU exclusif\n";
-                errorMessage += "• NOT pour la négation";
+                errorMessage += "• NOT pour la négation\n";
+                errorMessage += "• DFF pour la bascule D";
             }
             else if (c == '+' || c == '*' || c == '-' || c == '/') {
                 errorMessage += "Les opérateurs arithmétiques ne sont pas autorisés.\n";
-                errorMessage += "Utilisez AND, OR, XOR, NOT.";
+                errorMessage += "Utilisez AND, OR, XOR, NOT, DFF.";
             }
             else {
-                errorMessage += "Caractères autorisés : A-Z, AND, OR, XOR, NOT, ( )";
+                errorMessage += "Caractères autorisés : A-Z, AND, OR, XOR, NOT, DFF, ( ) ,";
             }
 
             hasError = true;
@@ -84,10 +85,14 @@ bool ExpressionParser::validateExpression() {
     }
 
     //  VÉRIFICATION DES VARIABLES (UNIQUEMENT X, Y, Z)
- 
+
     string tempExpr = expression;
     // Retirer les mots-clés pour ne garder que les variables
+    // IMPORTANT : Retirer DFF EN PREMIER avant AND pour éviter de confondre le D
     size_t found;
+    while ((found = tempExpr.find("DFF")) != string::npos) {
+        tempExpr.replace(found, 3, "   ");
+    }
     while ((found = tempExpr.find("AND")) != string::npos) {
         tempExpr.replace(found, 3, "   ");
     }
@@ -121,9 +126,9 @@ bool ExpressionParser::validateExpression() {
         }
     }
 
-   
+
     //  VÉRIFICATION DES PARENTHÈSES ÉQUILIBRÉES
- 
+
     int parenthesesCount = 0;
     for (size_t i = 0; i < expression.length(); i++) {
         char c = expression[i];
@@ -151,7 +156,7 @@ bool ExpressionParser::validateExpression() {
 
 
     //  VÉRIFICATION DES OPÉRATEURS CONSÉCUTIFS
-   
+
     if (expression.find("ANDAND") != string::npos ||
         expression.find("OROR") != string::npos ||
         expression.find("XORXOR") != string::npos ||
@@ -173,7 +178,7 @@ bool ExpressionParser::validateExpression() {
 
 
     // 6. VÉRIFICATION FIN D'EXPRESSION
-  
+
     // Retirer les espaces de fin
     string trimmedExpr = expression;
     while (!trimmedExpr.empty() && (trimmedExpr.back() == ' ' || trimmedExpr.back() == '\t' ||
@@ -183,7 +188,7 @@ bool ExpressionParser::validateExpression() {
 
     if (trimmedExpr.length() >= 3) {
         string lastThree = trimmedExpr.substr(trimmedExpr.length() - 3);
-        if (lastThree == "AND" || lastThree == "XOR" || lastThree == "NOT") {
+        if (lastThree == "AND" || lastThree == "XOR" || lastThree == "NOT" || lastThree == "DFF") {
             errorMessage = "ERREUR : Expression incomplète !\n\n";
             errorMessage += "L'expression ne peut pas se terminer par un opérateur (";
             errorMessage += lastThree;
@@ -206,7 +211,7 @@ bool ExpressionParser::validateExpression() {
 
 
     //  VÉRIFICATION DÉBUT D'EXPRESSION
- 
+
     // Retirer les espaces de début
     size_t startPos = 0;
     while (startPos < trimmedExpr.length() &&
@@ -222,7 +227,7 @@ bool ExpressionParser::validateExpression() {
             errorMessage += "L'expression ne peut pas commencer par un opérateur binaire (";
             errorMessage += firstThree;
             errorMessage += ").\n";
-            errorMessage += "Commencez par une variable (X, Y, Z), NOT, ou une parenthèse '('.";
+            errorMessage += "Commencez par une variable (X, Y, Z), NOT, DFF, ou une parenthèse '('.";
             hasError = true;
             return false;
         }
@@ -232,7 +237,7 @@ bool ExpressionParser::validateExpression() {
         if (firstTwo == "OR") {
             errorMessage = "ERREUR : Expression invalide !\n\n";
             errorMessage += "L'expression ne peut pas commencer par un opérateur binaire (OR).\n";
-            errorMessage += "Commencez par une variable (X, Y, Z), NOT, ou une parenthèse '('.";
+            errorMessage += "Commencez par une variable (X, Y, Z), NOT, DFF, ou une parenthèse '('.";
             hasError = true;
             return false;
         }
@@ -356,7 +361,94 @@ LogicExpression* ExpressionParser::parseTerm() {
         return exp;
     }
 
-    // Gérer NOT
+    // Gérer DFF (bascule D) - AVANT NOT et les variables - format: DFF(D,CLK)
+    if (pos + 3 <= expression.length() && expression.substr(pos, 3) == "DFF") {
+        pos += 3;
+
+        // Gérer les espaces
+        while (pos < expression.length() && (expression[pos] == ' ' ||
+            expression[pos] == '\t' || expression[pos] == '\n' || expression[pos] == '\r')) {
+            pos++;
+        }
+
+        // Vérifier la parenthèse ouvrante
+        if (pos >= expression.length() || expression[pos] != '(') {
+            errorMessage = "ERREUR : DFF doit être suivi de '(' !\n\n";
+            errorMessage += "Format attendu : DFF(D,CLK)\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            return nullptr;
+        }
+        pos++; // Sauter '('
+
+        // Parser l'entrée D
+        LogicExpression* inputD = parseExpression();
+        if (!inputD) {
+            errorMessage = "ERREUR : Entrée D invalide dans DFF !\n\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            return nullptr;
+        }
+
+        // Gérer les espaces avant la virgule
+        while (pos < expression.length() && (expression[pos] == ' ' ||
+            expression[pos] == '\t' || expression[pos] == '\n' || expression[pos] == '\r')) {
+            pos++;
+        }
+
+        // Vérifier la virgule
+        if (pos >= expression.length() || expression[pos] != ',') {
+            errorMessage = "ERREUR : Virgule ',' attendue dans DFF !\n\n";
+            errorMessage += "Format attendu : DFF(D,CLK)\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputD;
+            return nullptr;
+        }
+        pos++; // Sauter ','
+
+        // Parser l'entrée CLK
+        LogicExpression* inputCLK = parseExpression();
+        if (!inputCLK) {
+            errorMessage = "ERREUR : Entrée CLK invalide dans DFF !\n\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputD;
+            return nullptr;
+        }
+
+        // Gérer les espaces avant ')'
+        while (pos < expression.length() && (expression[pos] == ' ' ||
+            expression[pos] == '\t' || expression[pos] == '\n' || expression[pos] == '\r')) {
+            pos++;
+        }
+
+        // Vérifier la parenthèse fermante
+        if (pos >= expression.length() || expression[pos] != ')') {
+            errorMessage = "ERREUR : Parenthèse fermante ')' manquante dans DFF !\n\n";
+            errorMessage += "Position attendue : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputD;
+            delete inputCLK;
+            return nullptr;
+        }
+        pos++; // Sauter ')'
+
+        // Créer le nœud DFF
+        LogicExpression* node = new LogicExpression();
+        node->type = "DFF";
+        node->left = inputD;      // Entrée D
+        node->right = inputCLK;   // Entrée CLK
+
+        return node;
+    }
+
+    // Gérer NOT (après DFF)
     if (pos + 3 <= expression.length() && expression.substr(pos, 3) == "NOT") {
         pos += 3;
         LogicExpression* node = new LogicExpression();

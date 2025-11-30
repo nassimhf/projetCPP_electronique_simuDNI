@@ -4,17 +4,13 @@
 #include "ExpressionParser.h"
 #include "Colors.h"
 #include <format>
-
-
-
-
+#include "DFlipFlop.h"
 
 SchemaDrawer::SchemaDrawer(CClientDC* deviceContext)
     : dc(deviceContext), currentX(100), currentY(100),
     gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0), GateCounter(0), gateScale(0.7f) {
-    
-}
 
+}
 
 void SchemaDrawer::setSpacing(int horizontal, int vertical) {
     gateSpacing = horizontal;
@@ -30,6 +26,13 @@ int SchemaDrawer::calculateMaxDepth(LogicExpression* expr) {
 
     if (expr->type == "NOT") {
         return 1 + calculateMaxDepth(expr->left);
+    }
+
+    // Pour DFF
+    if (expr->type == "DFF") {
+        int leftDepth = calculateMaxDepth(expr->left);
+        int rightDepth = calculateMaxDepth(expr->right);
+        return 1 + max(leftDepth, rightDepth);
     }
 
     // Pour AND, OR, XOR
@@ -49,6 +52,11 @@ int SchemaDrawer::calculateGateCount(LogicExpression* expr) {
         return 1 + calculateGateCount(expr->left);
     }
 
+    // Pour DFF
+    if (expr->type == "DFF") {
+        return 1 + calculateGateCount(expr->left) + calculateGateCount(expr->right);
+    }
+
     // Pour AND, OR, XOR
     if (expr->type == "AND" || expr->type == "OR" || expr->type == "XOR") {
         return 1 + calculateGateCount(expr->left) + calculateGateCount(expr->right);
@@ -57,22 +65,17 @@ int SchemaDrawer::calculateGateCount(LogicExpression* expr) {
     return GateCounter;
 }
 
-
 int SchemaDrawer::getGateCount() {
     return GateCounter;
 }
 
 float SchemaDrawer::calculateGateScale() {
-    
-    
     const int gateCount = getGateCount();// Recuperer le nombre de porte
     const float min_Scale = 0.3f; //scale minimum d une porte 
     const float max_Scale = 0.7f; //scale maximum d une porte
 
     const int minThreshold = 4;
     const int maxThreshold = 10;
-
-
 
     // ON RETURN min ou max si en dehors de l'interval
     if (gateCount <= minThreshold)
@@ -85,10 +88,8 @@ float SchemaDrawer::calculateGateScale() {
     // Interpolation DÉCROISSANTE
     float scale = max_Scale - ratio * (max_Scale - min_Scale);
     return scale;
-
 }
 
-// Dans SchemaDrawer.cpp, ajoutez cette méthode :
 int SchemaDrawer::countLeaves(LogicExpression* expr) {
     if (!expr) return 0;
 
@@ -100,9 +101,10 @@ int SchemaDrawer::countLeaves(LogicExpression* expr) {
         return countLeaves(expr->left);
     }
 
-    // Pour AND, OR, XOR
+    // Pour DFF, AND, OR, XOR
     return countLeaves(expr->left) + countLeaves(expr->right);
 }
+
 void SchemaDrawer::Clear(CClientDC* dc) {
     CRect rect;
     dc->GetWindow()->GetClientRect(&rect);
@@ -114,7 +116,7 @@ void SchemaDrawer::Clear(CClientDC* dc) {
 
 InputDataVector SchemaDrawer::getInputData()
 {
-    return inputData   ;
+    return inputData;
 }
 
 void SchemaDrawer::setInputData(InputDataVector data)
@@ -122,13 +124,11 @@ void SchemaDrawer::setInputData(InputDataVector data)
     inputData = data;
 }
 
-
-
 void SchemaDrawer::drawSchema(string expression) {
     ExpressionParser parser(expression);
     LogicExpression* expr = parser.parse();
     GateCounter = calculateGateCount(expr);
-    
+
     gateScale = calculateGateScale();
     gateSpacing = int(200 * gateScale);
     verticalSpacing = int(150 * gateScale);
@@ -136,7 +136,6 @@ void SchemaDrawer::drawSchema(string expression) {
     maxLevel = calculateMaxDepth(expr);
     // Dessiner à partir du niveau 0 (dernière porte)
 
-    
     CPoint output = drawExpression(expr, 0, 200, 0);
     dc->MoveTo(output);
     dc->LineTo(CPoint(output.x + 50, output.y));
@@ -149,7 +148,6 @@ void SchemaDrawer::drawSchema(string expression) {
     dc->TextOut(output.x + 25, output.y - 28, text);
 }
 
-
 int SchemaDrawer::calculateSubtreeHeight(LogicExpression* expr) {
     if (!expr) return 0;
 
@@ -161,13 +159,12 @@ int SchemaDrawer::calculateSubtreeHeight(LogicExpression* expr) {
         return calculateSubtreeHeight(expr->left);  // NOT ne change pas la hauteur
     }
 
-    // Pour AND, OR, XOR : la hauteur = somme des hauteurs des deux branches
+    // Pour DFF, AND, OR, XOR : la hauteur = somme des hauteurs des deux branches
     int leftHeight = calculateSubtreeHeight(expr->left);
     int rightHeight = calculateSubtreeHeight(expr->right);
 
     return leftHeight + rightHeight;
 }
-
 
 CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY, int yOffset) {
     if (!expr) return CPoint(0, 0);
@@ -207,9 +204,77 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         return notGate.getOutputPoint();
     }
 
+    // NOUVEAU : Gestion de la bascule D (DFF)
+    if (expr->type == "DFF") {
+        // Détecter si les deux branches sont simples
+        bool leftIsSimple = (expr->left->type == "VAR" ||
+            (expr->left->type == "NOT" && expr->left->left && expr->left->left->type == "VAR"));
+        bool rightIsSimple = (expr->right->type == "VAR" ||
+            (expr->right->type == "NOT" && expr->right->left && expr->right->left->type == "VAR"));
+
+        int leftCenterY, rightCenterY;
+
+        if (leftIsSimple && rightIsSimple) {
+            // Utiliser l'espacement minimal standard
+            int simpleSpacing = int(50 * gateScale);  // Espacement pour D et CLK
+            if (simpleSpacing < 25) simpleSpacing = 25;
+
+            leftCenterY = adjustedY - simpleSpacing;   // Position pour D
+            rightCenterY = adjustedY + simpleSpacing;  // Position pour CLK
+        }
+        else {
+            // Cas complexe : Au moins une branche a des sous-arbres
+            int leftHeight = calculateSubtreeHeight(expr->left);
+            int rightHeight = calculateSubtreeHeight(expr->right);
+            int totalHeight = leftHeight + rightHeight;
+
+            const int baseUnitSpacing = 80;
+            int unitSpacing = int(baseUnitSpacing * gateScale);
+            if (unitSpacing < 40) unitSpacing = 40;
+
+            int totalSpace = totalHeight * unitSpacing;
+            int startY = adjustedY - totalSpace / 2;
+
+            int leftSpace = leftHeight * unitSpacing;
+            int rightSpace = rightHeight * unitSpacing;
+
+            leftCenterY = startY + leftSpace / 2;
+            rightCenterY = startY + leftSpace + rightSpace / 2;
+        }
+
+        DFlipFlop dff;
+        dff.setStartPoint(CPoint(fixedX, adjustedY));
+        dff.setD(evaluateExpression(expr->left) ? 1 : 0);
+        dff.setCLK(evaluateExpression(expr->right) ? 1 : 0);
+        dff.computeQ();
+        dff.draw(*dc, calculateGateScale());
+
+        // Dessiner les connexions pour l'entrée D
+        CPoint leftInput = drawExpression(expr->left, level + 1, leftCenterY, 0);
+        CPoint dInputPoint = dff.getInputPointD();
+
+        int midXD = (leftInput.x + dInputPoint.x) / 2;
+        dc->MoveTo(leftInput);
+        dc->LineTo(midXD, leftInput.y);
+        dc->LineTo(midXD, dInputPoint.y);
+        dc->LineTo(dInputPoint);
+
+        // Dessiner les connexions pour l'entrée CLK
+        CPoint rightInput = drawExpression(expr->right, level + 1, rightCenterY, 0);
+        CPoint clkInputPoint = dff.getInputPointCLK();
+
+        int midXCLK = (rightInput.x + clkInputPoint.x) / 2;
+        dc->MoveTo(rightInput);
+        dc->LineTo(midXCLK, rightInput.y);
+        dc->LineTo(midXCLK, clkInputPoint.y);
+        dc->LineTo(clkInputPoint);
+
+        return dff.getOutputPointQ();
+    }
+
     if (expr->type == "AND" || expr->type == "OR" || expr->type == "XOR") {
 
-        // ✅ DÉTECTER SI LES DEUX BRANCHES SONT SIMPLES (VAR ou NOT VAR)
+        // DÉTECTER SI LES DEUX BRANCHES SONT SIMPLES (VAR ou NOT VAR)
         bool leftIsSimple = (expr->left->type == "VAR" ||
             (expr->left->type == "NOT" && expr->left->left && expr->left->left->type == "VAR"));
         bool rightIsSimple = (expr->right->type == "VAR" ||
@@ -227,7 +292,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
             rightCenterY = adjustedY + simpleSpacing;
         }
         else {
-            // ✅ CAS COMPLEXE : Au moins une branche a des sous-arbres
+            // CAS COMPLEXE : Au moins une branche a des sous-arbres
             int leftHeight = calculateSubtreeHeight(expr->left);
             int rightHeight = calculateSubtreeHeight(expr->right);
             int totalHeight = leftHeight + rightHeight;
@@ -304,7 +369,6 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
             xorGate.setStartPoint(CPoint(fixedX, adjustedY));
             xorGate.entre1 = evaluateExpression(expr->left) ? 1 : 0;
             xorGate.entre2 = evaluateExpression(expr->right) ? 1 : 0;
-          
             xorGate.draw(*dc, calculateGateScale());
 
             CPoint leftInput = drawExpression(expr->left, level + 1, leftCenterY, 0);
@@ -333,7 +397,6 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
     return CPoint(0, 0);
 }
 
-
 bool SchemaDrawer::evaluateExpression(LogicExpression* expr) {
     if (!expr) return 0;
 
@@ -348,6 +411,23 @@ bool SchemaDrawer::evaluateExpression(LogicExpression* expr) {
     // --- Cas d'une porte NOT ---
     if (expr->type == "NOT") {
         return !evaluateExpression(expr->left);
+    }
+
+    // --- NOUVEAU : Cas d'une bascule D (DFF) ---
+    if (expr->type == "DFF") {
+        // Pour la bascule D, on simule un comportement simple :
+        // Si CLK = 1 (front montant simulé), Q = D
+        // Sinon Q garde sa valeur (pour simplifier, on retourne D)
+        bool D = evaluateExpression(expr->left);
+        bool CLK = evaluateExpression(expr->right);
+
+        // Simulation simple : si CLK est à 1, capturer D
+        // (Dans une vraie simulation, il faudrait gérer l'état précédent)
+        if (CLK) {
+            return D;
+        }
+        // Sinon retourner 0 (ou garder l'état précédent dans une vraie simulation)
+        return 0;
     }
 
     // --- Cas d'une porte AND ---
@@ -366,7 +446,7 @@ bool SchemaDrawer::evaluateExpression(LogicExpression* expr) {
 
     // --- Cas d'une porte XOR ---
     if (expr->type == "XOR") {
-        int left =  evaluateExpression(expr->left);
+        int left = evaluateExpression(expr->left);
         int right = evaluateExpression(expr->right);
         return left ^ right;
     }
@@ -388,7 +468,6 @@ int SchemaDrawer::evaluateSchema(string expression, InputDataVector& inputs) {
 
     return result;
 }
-
 
 void SchemaDrawer::drawConnection(CPoint from, CPoint to) {
     dc->MoveTo(from);
