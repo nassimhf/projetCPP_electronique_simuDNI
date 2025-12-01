@@ -115,6 +115,9 @@ BEGIN_MESSAGE_MAP(CProjetcppsimuDlg, CDialogEx)
 	
 	ON_BN_CLICKED(IDC_BUTTON_INCREMENTEMUL, &CProjetcppsimuDlg::OnBnClickedButtonIncrementemul)
 	ON_BN_CLICKED(IDC_BUTTON_DECREMENTEMUL, &CProjetcppsimuDlg::OnBnClickedButtonDecrementemul)
+	ON_BN_CLICKED(IDC_BUTTONDFF, &CProjetcppsimuDlg::OnBnClickedButtondff)
+	ON_BN_CLICKED(IDC_BUTTONJKF, &CProjetcppsimuDlg::OnBnClickedButtonjkf)
+	ON_BN_CLICKED(IDC_BUTTON_VIRG, &CProjetcppsimuDlg::OnBnClickedButtonVirg)
 END_MESSAGE_MAP()
 
 
@@ -586,4 +589,37 @@ void CProjetcppsimuDlg::OnBnClickedButtonDecrementemul()
 	CString str;
 	str.Format(_T("%d"), value);
 	m_mul.SetWindowText(str);
+}
+
+void CProjetcppsimuDlg::OnBnClickedButtondff()
+{
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(" DFF");
+		m_editZone.SetWindowText(currentText);
+		compteur++;
+	}
+}
+
+void CProjetcppsimuDlg::OnBnClickedButtonjkf()
+{
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(" JKF");
+		m_editZone.SetWindowText(currentText);
+		compteur++;
+	}
+}
+
+void CProjetcppsimuDlg::OnBnClickedButtonVirg()
+{
+	if (compteur < 13) {
+		CString currentText;
+		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
+		currentText += _T(",");
+		m_editZone.SetWindowText(currentText);
+		compteur++;
+	}
 }
