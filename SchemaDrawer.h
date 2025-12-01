@@ -37,7 +37,7 @@ private:
     int GateCounter;
     float gateScale;
     InputDataVector inputData;
-   
+    bool lastDFFstate;
     
  
     int countLeaves(LogicExpression* expr);
@@ -53,14 +53,17 @@ private:
   
 public: 
     SchemaDrawer(CClientDC* deviceContext);
-
+    bool lastJKFstate;
        // Évaluer l'expression avec les valeurs d'entrée
     float calculateGateScale();
     int calculateGateCount(LogicExpression* expr);
     int getGateCount();
   
     bool evaluateExpression(LogicExpression* expr);
-
+    bool getlastDFFstate();
+    void setlastJKFstate(bool Q);
+    bool getlastJKFstate();
+    void setlastDFFstate(bool D);
     void drawSchema(string expression);
     
     void setSpacing(int horizontal, int vertical); 

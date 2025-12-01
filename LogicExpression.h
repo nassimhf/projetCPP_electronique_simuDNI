@@ -15,6 +15,7 @@ public:
     string varName;         // Si c'est une variable: "A", "B", "C"...
     LogicExpression* left;  // Opérande gauche
     LogicExpression* right; // Opérande droite
+    LogicExpression* middle;
     bool isNegated;         // Si précédé de NOT
 	bool result;        // Résultat de l'évaluation
 

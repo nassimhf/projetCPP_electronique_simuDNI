@@ -39,7 +39,7 @@ bool ExpressionParser::validateExpression() {
     for (size_t i = 0; i < expression.length(); i++) {
         char c = expression[i];
 
-        // Caractères autorisés: lettres majuscules, parenthèses, espaces, virgule (pour DFF)
+        // Caractères autorisés: lettres majuscules, parenthèses, espaces, virgule (pour DFF et JKF)
         bool isValid = (c >= 'A' && c <= 'Z') ||
             c == '(' || c == ')' || c == ',' ||
             c == ' ' || c == '\t' || c == '\n' || c == '\r';
@@ -69,14 +69,15 @@ bool ExpressionParser::validateExpression() {
                 errorMessage += "• OR pour OU logique\n";
                 errorMessage += "• XOR pour OU exclusif\n";
                 errorMessage += "• NOT pour la négation\n";
-                errorMessage += "• DFF pour la bascule D";
+                errorMessage += "• DFF pour la bascule D\n";
+                errorMessage += "• JKF pour la bascule JK";
             }
             else if (c == '+' || c == '*' || c == '-' || c == '/') {
                 errorMessage += "Les opérateurs arithmétiques ne sont pas autorisés.\n";
-                errorMessage += "Utilisez AND, OR, XOR, NOT, DFF.";
+                errorMessage += "Utilisez AND, OR, XOR, NOT, DFF, JKF.";
             }
             else {
-                errorMessage += "Caractères autorisés : A-Z, AND, OR, XOR, NOT, DFF, ( ) ,";
+                errorMessage += "Caractères autorisés : A-Z, AND, OR, XOR, NOT, DFF, JKF, ( ) ,";
             }
 
             hasError = true;
@@ -88,8 +89,11 @@ bool ExpressionParser::validateExpression() {
 
     string tempExpr = expression;
     // Retirer les mots-clés pour ne garder que les variables
-    // IMPORTANT : Retirer DFF EN PREMIER avant AND pour éviter de confondre le D
+    // IMPORTANT : Retirer JKF et DFF EN PREMIER avant AND pour éviter confusion
     size_t found;
+    while ((found = tempExpr.find("JKF")) != string::npos) {
+        tempExpr.replace(found, 3, "   ");
+    }
     while ((found = tempExpr.find("DFF")) != string::npos) {
         tempExpr.replace(found, 3, "   ");
     }
@@ -188,7 +192,8 @@ bool ExpressionParser::validateExpression() {
 
     if (trimmedExpr.length() >= 3) {
         string lastThree = trimmedExpr.substr(trimmedExpr.length() - 3);
-        if (lastThree == "AND" || lastThree == "XOR" || lastThree == "NOT" || lastThree == "DFF") {
+        if (lastThree == "AND" || lastThree == "XOR" || lastThree == "NOT" ||
+            lastThree == "DFF" || lastThree == "JKF") {
             errorMessage = "ERREUR : Expression incomplète !\n\n";
             errorMessage += "L'expression ne peut pas se terminer par un opérateur (";
             errorMessage += lastThree;
@@ -227,7 +232,7 @@ bool ExpressionParser::validateExpression() {
             errorMessage += "L'expression ne peut pas commencer par un opérateur binaire (";
             errorMessage += firstThree;
             errorMessage += ").\n";
-            errorMessage += "Commencez par une variable (X, Y, Z), NOT, DFF, ou une parenthèse '('.";
+            errorMessage += "Commencez par une variable (X, Y, Z), NOT, DFF, JKF, ou une parenthèse '('.";
             hasError = true;
             return false;
         }
@@ -237,7 +242,7 @@ bool ExpressionParser::validateExpression() {
         if (firstTwo == "OR") {
             errorMessage = "ERREUR : Expression invalide !\n\n";
             errorMessage += "L'expression ne peut pas commencer par un opérateur binaire (OR).\n";
-            errorMessage += "Commencez par une variable (X, Y, Z), NOT, DFF, ou une parenthèse '('.";
+            errorMessage += "Commencez par une variable (X, Y, Z), NOT, DFF, JKF, ou une parenthèse '('.";
             hasError = true;
             return false;
         }
@@ -361,6 +366,132 @@ LogicExpression* ExpressionParser::parseTerm() {
         return exp;
     }
 
+    // Gérer JKF (bascule JK) - AVANT DFF, NOT et les variables - format: JKF(J,K,CLK)
+    if (pos + 3 <= expression.length() && expression.substr(pos, 3) == "JKF") {
+        pos += 3;
+
+        // Gérer les espaces
+        while (pos < expression.length() && (expression[pos] == ' ' ||
+            expression[pos] == '\t' || expression[pos] == '\n' || expression[pos] == '\r')) {
+            pos++;
+        }
+
+        // Vérifier la parenthèse ouvrante
+        if (pos >= expression.length() || expression[pos] != '(') {
+            errorMessage = "ERREUR : JKF doit être suivi de '(' !\n\n";
+            errorMessage += "Format attendu : JKF(J,K,CLK)\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            return nullptr;
+        }
+        pos++; // Sauter '('
+
+        // Parser l'entrée J
+        LogicExpression* inputJ = parseExpression();
+        if (!inputJ) {
+            errorMessage = "ERREUR : Entrée J invalide dans JKF !\n\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            return nullptr;
+        }
+
+        // Gérer les espaces avant la première virgule
+        while (pos < expression.length() && (expression[pos] == ' ' ||
+            expression[pos] == '\t' || expression[pos] == '\n' || expression[pos] == '\r')) {
+            pos++;
+        }
+
+        // Vérifier la première virgule
+        if (pos >= expression.length() || expression[pos] != ',') {
+            errorMessage = "ERREUR : Virgule ',' attendue après J dans JKF !\n\n";
+            errorMessage += "Format attendu : JKF(J,K,CLK)\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputJ;
+            return nullptr;
+        }
+        pos++; // Sauter ','
+
+        // Parser l'entrée K
+        LogicExpression* inputK = parseExpression();
+        if (!inputK) {
+            errorMessage = "ERREUR : Entrée K invalide dans JKF !\n\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputJ;
+            return nullptr;
+        }
+
+        // Gérer les espaces avant la deuxième virgule
+        while (pos < expression.length() && (expression[pos] == ' ' ||
+            expression[pos] == '\t' || expression[pos] == '\n' || expression[pos] == '\r')) {
+            pos++;
+        }
+
+        // Vérifier la deuxième virgule
+        if (pos >= expression.length() || expression[pos] != ',') {
+            errorMessage = "ERREUR : Virgule ',' attendue après K dans JKF !\n\n";
+            errorMessage += "Format attendu : JKF(J,K,CLK)\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputJ;
+            delete inputK;
+            return nullptr;
+        }
+        pos++; // Sauter ','
+
+        // Parser l'entrée CLK
+        LogicExpression* inputCLK = parseExpression();
+        if (!inputCLK) {
+            errorMessage = "ERREUR : Entrée CLK invalide dans JKF !\n\n";
+            errorMessage += "Position : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputJ;
+            delete inputK;
+            return nullptr;
+        }
+
+        // Gérer les espaces avant ')'
+        while (pos < expression.length() && (expression[pos] == ' ' ||
+            expression[pos] == '\t' || expression[pos] == '\n' || expression[pos] == '\r')) {
+            pos++;
+        }
+
+        // Vérifier la parenthèse fermante
+        if (pos >= expression.length() || expression[pos] != ')') {
+            errorMessage = "ERREUR : Parenthèse fermante ')' manquante dans JKF !\n\n";
+            errorMessage += "Position attendue : ";
+            errorMessage += to_string(pos);
+            hasError = true;
+            delete inputJ;
+            delete inputK;
+            delete inputCLK;
+            return nullptr;
+        }
+        pos++; // Sauter ')'
+
+        // Créer le nœud JKF
+        // On utilise left pour J, right pour K, et on doit stocker CLK quelque part
+        // Solution: créer un nœud intermédiaire pour K et CLK
+        LogicExpression* rightNode = new LogicExpression();
+        rightNode->type = "JKF_KC"; // Nœud intermédiaire K-CLK
+        rightNode->left = inputK;
+        rightNode->right = inputCLK;
+
+        LogicExpression* node = new LogicExpression();
+        node->type = "JKF";
+        node->left = inputJ;      // Entrée J
+        node->right = rightNode;  // Sous-nœud contenant K et CLK
+
+        return node;
+    }
+
     // Gérer DFF (bascule D) - AVANT NOT et les variables - format: DFF(D,CLK)
     if (pos + 3 <= expression.length() && expression.substr(pos, 3) == "DFF") {
         pos += 3;
@@ -448,7 +579,7 @@ LogicExpression* ExpressionParser::parseTerm() {
         return node;
     }
 
-    // Gérer NOT (après DFF)
+    // Gérer NOT (après JKF et DFF)
     if (pos + 3 <= expression.length() && expression.substr(pos, 3) == "NOT") {
         pos += 3;
         LogicExpression* node = new LogicExpression();

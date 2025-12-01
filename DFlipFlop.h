@@ -32,18 +32,12 @@ public:
     bool getQ() const;
     void setD(bool val);
     void setCLK(bool val);
-
+    
     CPoint getOutputPointQ() const;
     CPoint getInputPointD() const;
     CPoint getInputPointCLK() const;
 
     // Méthodes de connexion
-    void connectInputDGate(DFlipFlop* gate);
-    void connectInputCLKGate(DFlipFlop* gate);
-    void setInputDAsVariable(bool val);
-    void setInputCLKAsVariable(bool val);
-
-    // Calcul et évaluation
-    void computeQ();
-    bool evaluate();
+    
+ 
 };

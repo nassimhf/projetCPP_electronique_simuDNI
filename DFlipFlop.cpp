@@ -33,11 +33,24 @@ void DFlipFlop::draw(CClientDC& dc, float scale)
 
     // --- 1. Dessiner le rectangle principal ---
     CPen pen(PS_SOLID, int(2 * scale), RGB(0, 0, 0));
-    CPen* oldPen = dc.SelectObject(&pen);
+    CBrush nullBrush;
+    nullBrush.CreateStockObject(NULL_BRUSH); // crée un brush stock qui vit tant que nullBrush existe
 
+    // sélectionner et garder les anciens objets renvoyés
+    CPen* pOldPen = dc.SelectObject(&pen);
+    CBrush* pOldBrush = (CBrush*)dc.SelectObject(&nullBrush);
+
+    // dessin
     dc.Rectangle(startPoint.x, startPoint.y,
         startPoint.x + width, startPoint.y + height);
 
+    // restaurer les anciens objets (vérifier non-null avant)
+    if (pOldBrush) dc.SelectObject(pOldBrush);
+    if (pOldPen)  dc.SelectObject(pOldPen);
+
+    
+    CPen* oldPen = dc.SelectObject(&pen);
+    
     // --- 2. Dessiner le triangle d'horloge (indique front montant) ---
     // Petit triangle sur l'entrée CLK
     int triangleSize = int(8 * scale);
@@ -86,19 +99,19 @@ void DFlipFlop::draw(CClientDC& dc, float scale)
     CString inputD_str(D ? "1" : "0");
     dc.SetTextColor(D ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPointD.x - int(20 * scale),
-        inputPointD.y - int(10 * scale), inputD_str);
+        inputPointD.y - int(20 * scale), inputD_str);
 
     // État de CLK
     CString inputCLK_str(CLK ? "1" : "0");
     dc.SetTextColor(CLK ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPointCLK.x - int(20 * scale),
-        inputPointCLK.y - int(10 * scale), inputCLK_str);
+        inputPointCLK.y - int(20 * scale), inputCLK_str);
 
     // État de Q
     CString outputQ_str(Q ? "1" : "0");
     dc.SetTextColor(Q ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(outputPointQ.x + int(10 * scale),
-        outputPointQ.y - int(10 * scale), outputQ_str);
+        outputPointQ.y - int(20 * scale), outputQ_str);
 
     dc.SelectObject(oldFont);
 }
@@ -114,54 +127,3 @@ CPoint DFlipFlop::getInputPointD() const { return inputPointD; }
 CPoint DFlipFlop::getInputPointCLK() const { return inputPointCLK; }
 
 // NOUVELLES MÉTHODES
-void DFlipFlop::connectInputDGate(DFlipFlop* gate) {
-    inputGateD = gate;
-    isInputDVariable = false;
-}
-
-void DFlipFlop::connectInputCLKGate(DFlipFlop* gate) {
-    inputGateCLK = gate;
-    isInputCLKVariable = false;
-}
-
-void DFlipFlop::setInputDAsVariable(bool val) {
-    isInputDVariable = true;
-    D = val;
-}
-
-void DFlipFlop::setInputCLKAsVariable(bool val) {
-    isInputCLKVariable = true;
-    CLK = val;
-}
-
-void DFlipFlop::computeQ()
-{
-    // Détection du front montant (transition 0 -> 1)
-    if (CLK && !previousCLK) {
-        // Sur front montant, capturer la valeur de D
-        Q = D;
-    }
-    // Sinon Q garde sa valeur
-
-    // Mettre à jour l'état précédent de l'horloge
-    previousCLK = CLK;
-}
-
-// ÉVALUATION RÉCURSIVE
-bool DFlipFlop::evaluate()
-{
-    // Si entrée D n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInputDVariable && inputGateD != nullptr) {
-        D = inputGateD->evaluate();
-    }
-
-    // Si entrée CLK n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInputCLKVariable && inputGateCLK != nullptr) {
-        CLK = inputGateCLK->evaluate();
-    }
-
-    // Calculer la sortie Q
-    computeQ();
-
-    return Q;
-}

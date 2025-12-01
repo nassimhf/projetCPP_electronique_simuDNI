@@ -5,10 +5,11 @@
 #include "Colors.h"
 #include <format>
 #include "DFlipFlop.h"
+#include "JKFlipFlop.h"
 
 SchemaDrawer::SchemaDrawer(CClientDC* deviceContext)
     : dc(deviceContext), currentX(100), currentY(100),
-    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0), GateCounter(0), gateScale(0.7f) {
+    gateSpacing(150), verticalSpacing(150), gateLevel(0), maxLevel(0), GateCounter(0), gateScale(0.7f), lastDFFstate(0), lastJKFstate(0) {
 
 }
 
@@ -35,6 +36,19 @@ int SchemaDrawer::calculateMaxDepth(LogicExpression* expr) {
         return 1 + max(leftDepth, rightDepth);
     }
 
+    // Pour JKF
+    if (expr->type == "JKF") {
+        int leftDepth = calculateMaxDepth(expr->left);
+        // right contient le nœud JKF_KC avec K et CLK
+        int rightDepth = 0;
+        if (expr->right && expr->right->type == "JKF_KC") {
+            int kDepth = calculateMaxDepth(expr->right->left);
+            int clkDepth = calculateMaxDepth(expr->right->right);
+            rightDepth = max(kDepth, clkDepth);
+        }
+        return 1 + max(leftDepth, rightDepth);
+    }
+
     // Pour AND, OR, XOR
     int leftDepth = calculateMaxDepth(expr->left);
     int rightDepth = calculateMaxDepth(expr->right);
@@ -55,6 +69,16 @@ int SchemaDrawer::calculateGateCount(LogicExpression* expr) {
     // Pour DFF
     if (expr->type == "DFF") {
         return 1 + calculateGateCount(expr->left) + calculateGateCount(expr->right);
+    }
+
+    // Pour JKF
+    if (expr->type == "JKF") {
+        int count = 1 + calculateGateCount(expr->left);
+        if (expr->right && expr->right->type == "JKF_KC") {
+            count += calculateGateCount(expr->right->left);
+            count += calculateGateCount(expr->right->right);
+        }
+        return count;
     }
 
     // Pour AND, OR, XOR
@@ -101,6 +125,16 @@ int SchemaDrawer::countLeaves(LogicExpression* expr) {
         return countLeaves(expr->left);
     }
 
+    // Pour JKF
+    if (expr->type == "JKF") {
+        int count = countLeaves(expr->left);
+        if (expr->right && expr->right->type == "JKF_KC") {
+            count += countLeaves(expr->right->left);
+            count += countLeaves(expr->right->right);
+        }
+        return count;
+    }
+
     // Pour DFF, AND, OR, XOR
     return countLeaves(expr->left) + countLeaves(expr->right);
 }
@@ -122,6 +156,26 @@ InputDataVector SchemaDrawer::getInputData()
 void SchemaDrawer::setInputData(InputDataVector data)
 {
     inputData = data;
+}
+
+void SchemaDrawer::setlastDFFstate(bool D)
+{
+    lastDFFstate = D;
+}
+
+bool SchemaDrawer::getlastDFFstate()
+{
+    return lastDFFstate;
+}
+
+void SchemaDrawer::setlastJKFstate(bool Q)
+{
+    lastJKFstate = Q;
+}
+
+bool SchemaDrawer::getlastJKFstate()
+{
+    return lastJKFstate;
 }
 
 void SchemaDrawer::drawSchema(string expression) {
@@ -157,6 +211,18 @@ int SchemaDrawer::calculateSubtreeHeight(LogicExpression* expr) {
 
     if (expr->type == "NOT") {
         return calculateSubtreeHeight(expr->left);  // NOT ne change pas la hauteur
+    }
+
+    // Pour JKF
+    if (expr->type == "JKF") {
+        int leftHeight = calculateSubtreeHeight(expr->left);
+        int rightHeight = 0;
+        if (expr->right && expr->right->type == "JKF_KC") {
+            int kHeight = calculateSubtreeHeight(expr->right->left);
+            int clkHeight = calculateSubtreeHeight(expr->right->right);
+            rightHeight = kHeight + clkHeight;
+        }
+        return leftHeight + rightHeight;
     }
 
     // Pour DFF, AND, OR, XOR : la hauteur = somme des hauteurs des deux branches
@@ -204,7 +270,102 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         return notGate.getOutputPoint();
     }
 
-    // NOUVEAU : Gestion de la bascule D (DFF)
+    // NOUVEAU : Gestion de la bascule JK (JKF)
+    if (expr->type == "JKF") {
+        // Extraire les 3 entrées
+        LogicExpression* inputJ = expr->left;
+        LogicExpression* inputK = nullptr;
+        LogicExpression* inputCLK = nullptr;
+
+        if (expr->right && expr->right->type == "JKF_KC") {
+            inputK = expr->right->left;
+            inputCLK = expr->right->right;
+        }
+
+        // Détecter si les trois branches sont simples
+        bool jIsSimple = (inputJ && (inputJ->type == "VAR" ||
+            (inputJ->type == "NOT" && inputJ->left && inputJ->left->type == "VAR")));
+        bool kIsSimple = (inputK && (inputK->type == "VAR" ||
+            (inputK->type == "NOT" && inputK->left && inputK->left->type == "VAR")));
+        bool clkIsSimple = (inputCLK && (inputCLK->type == "VAR" ||
+            (inputCLK->type == "NOT" && inputCLK->left && inputCLK->left->type == "VAR")));
+
+        int jCenterY, kCenterY, clkCenterY;
+
+        if (jIsSimple && kIsSimple && clkIsSimple) {
+            // Utiliser l'espacement minimal standard pour 3 entrées
+            int simpleSpacing = int(50 * gateScale);
+            if (simpleSpacing < 25) simpleSpacing = 25;
+
+            jCenterY = adjustedY - simpleSpacing;        // J en haut
+            clkCenterY = adjustedY;                       // CLK au milieu
+            kCenterY = adjustedY + simpleSpacing;         // K en bas
+        }
+        else {
+            // Cas complexe
+            int jHeight = calculateSubtreeHeight(inputJ);
+            int kHeight = calculateSubtreeHeight(inputK);
+            int clkHeight = calculateSubtreeHeight(inputCLK);
+            int totalHeight = jHeight + kHeight + clkHeight;
+
+            const int baseUnitSpacing = 60;
+            int unitSpacing = int(baseUnitSpacing * gateScale);
+            if (unitSpacing < 30) unitSpacing = 30;
+
+            int totalSpace = totalHeight * unitSpacing;
+            int startY = adjustedY - totalSpace / 2;
+
+            int jSpace = jHeight * unitSpacing;
+            int clkSpace = clkHeight * unitSpacing;
+            int kSpace = kHeight * unitSpacing;
+
+            jCenterY = startY + jSpace / 2;
+            clkCenterY = startY + jSpace + clkSpace / 2;
+            kCenterY = startY + jSpace + clkSpace + kSpace / 2;
+        }
+
+        JKFlipFlop jkf;
+        jkf.setStartPoint(CPoint(fixedX, adjustedY));
+        jkf.setJ(evaluateExpression(inputJ) ? 1 : 0);
+        jkf.setK(evaluateExpression(inputK) ? 1 : 0);
+        jkf.setCLK(evaluateExpression(inputCLK) ? 1 : 0);
+        jkf.computeQ();
+        jkf.draw(*dc, calculateGateScale());
+
+        // Dessiner les connexions pour l'entrée J
+        CPoint jInput = drawExpression(inputJ, level + 1, jCenterY, 0);
+        CPoint jInputPoint = jkf.getInputPointJ();
+
+        int midXJ = (jInput.x + jInputPoint.x) / 2;
+        dc->MoveTo(jInput);
+        dc->LineTo(midXJ, jInput.y);
+        dc->LineTo(midXJ, jInputPoint.y);
+        dc->LineTo(jInputPoint);
+
+        // Dessiner les connexions pour l'entrée K
+        CPoint kInput = drawExpression(inputK, level + 1, kCenterY, 0);
+        CPoint kInputPoint = jkf.getInputPointK();
+
+        int midXK = (kInput.x + kInputPoint.x) / 2;
+        dc->MoveTo(kInput);
+        dc->LineTo(midXK, kInput.y);
+        dc->LineTo(midXK, kInputPoint.y);
+        dc->LineTo(kInputPoint);
+
+        // Dessiner les connexions pour l'entrée CLK
+        CPoint clkInput = drawExpression(inputCLK, level + 1, clkCenterY, 0);
+        CPoint clkInputPoint = jkf.getInputPointCLK();
+
+        int midXCLK = (clkInput.x + clkInputPoint.x) / 2;
+        dc->MoveTo(clkInput);
+        dc->LineTo(midXCLK, clkInput.y);
+        dc->LineTo(midXCLK, clkInputPoint.y);
+        dc->LineTo(clkInputPoint);
+
+        return jkf.getOutputPointQ();
+    }
+
+    // Gestion de la bascule D (DFF)
     if (expr->type == "DFF") {
         // Détecter si les deux branches sont simples
         bool leftIsSimple = (expr->left->type == "VAR" ||
@@ -246,7 +407,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         dff.setStartPoint(CPoint(fixedX, adjustedY));
         dff.setD(evaluateExpression(expr->left) ? 1 : 0);
         dff.setCLK(evaluateExpression(expr->right) ? 1 : 0);
-        dff.computeQ();
+     
         dff.draw(*dc, calculateGateScale());
 
         // Dessiner les connexions pour l'entrée D
@@ -413,21 +574,56 @@ bool SchemaDrawer::evaluateExpression(LogicExpression* expr) {
         return !evaluateExpression(expr->left);
     }
 
-    // --- NOUVEAU : Cas d'une bascule D (DFF) ---
+    // --- NOUVEAU : Cas d'une bascule JK (JKF) ---
+    if (expr->type == "JKF") {
+        bool J = evaluateExpression(expr->left);
+        bool K = false;
+        bool CLK = false;
+
+        if (expr->right && expr->right->type == "JKF_KC") {
+            K = evaluateExpression(expr->right->left);
+            CLK = evaluateExpression(expr->right->right);
+        }
+
+        // Simulation de la bascule JK sur front montant
+        if (CLK) {
+            bool currentQ = getlastJKFstate();
+            bool newQ = currentQ;
+
+            if (!J && !K) {
+                // Maintien : Q garde sa valeur
+                newQ = currentQ;
+            }
+            else if (!J && K) {
+                // Reset
+                newQ = false;
+            }
+            else if (J && !K) {
+                // Set
+                newQ = true;
+            }
+            else if (J && K) {
+                // Toggle
+                newQ = !currentQ;
+            }
+
+            setlastJKFstate(newQ);
+            return newQ;
+        }
+
+        return getlastJKFstate();
+    }
+
+    // --- Cas d'une bascule D (DFF) ---
     if (expr->type == "DFF") {
-        // Pour la bascule D, on simule un comportement simple :
-        // Si CLK = 1 (front montant simulé), Q = D
-        // Sinon Q garde sa valeur (pour simplifier, on retourne D)
         bool D = evaluateExpression(expr->left);
         bool CLK = evaluateExpression(expr->right);
 
-        // Simulation simple : si CLK est à 1, capturer D
-        // (Dans une vraie simulation, il faudrait gérer l'état précédent)
         if (CLK) {
+            setlastDFFstate(D);
             return D;
         }
-        // Sinon retourner 0 (ou garder l'état précédent dans une vraie simulation)
-        return 0;
+        return getlastDFFstate();
     }
 
     // --- Cas d'une porte AND ---
