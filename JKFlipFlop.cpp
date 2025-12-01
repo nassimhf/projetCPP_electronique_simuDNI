@@ -36,10 +36,23 @@ void JKFlipFlop::draw(CClientDC& dc, float scale)
 
     // --- 1. Dessiner le rectangle principal ---
     CPen pen(PS_SOLID, int(2 * scale), RGB(0, 0, 0));
-    CPen* oldPen = dc.SelectObject(&pen);
+    CBrush nullBrush;
+    nullBrush.CreateStockObject(NULL_BRUSH); // crée un brush stock qui vit tant que nullBrush existe
 
+    // sélectionner et garder les anciens objets renvoyés
+    CPen* pOldPen = dc.SelectObject(&pen);
+    CBrush* pOldBrush = (CBrush*)dc.SelectObject(&nullBrush);
+
+    // dessin
     dc.Rectangle(startPoint.x, startPoint.y,
         startPoint.x + width, startPoint.y + height);
+
+    // restaurer les anciens objets (vérifier non-null avant)
+    if (pOldBrush) dc.SelectObject(pOldBrush);
+    if (pOldPen)  dc.SelectObject(pOldPen);
+
+
+    CPen* oldPen = dc.SelectObject(&pen);
 
     // --- 2. Dessiner le triangle d'horloge (indique front montant) ---
     // Petit triangle sur l'entrée CLK
@@ -94,19 +107,19 @@ void JKFlipFlop::draw(CClientDC& dc, float scale)
     CString inputJ_str(J ? "1" : "0");
     dc.SetTextColor(J ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPointJ.x - int(20 * scale),
-        inputPointJ.y - int(10 * scale), inputJ_str);
+        inputPointJ.y - int(20 * scale), inputJ_str);
 
     // État de CLK
     CString inputCLK_str(CLK ? "1" : "0");
     dc.SetTextColor(CLK ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPointCLK.x - int(20 * scale),
-        inputPointCLK.y - int(10 * scale), inputCLK_str);
+        inputPointCLK.y - int(20 * scale), inputCLK_str);
 
     // État de K
     CString inputK_str(K ? "1" : "0");
     dc.SetTextColor(K ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(inputPointK.x - int(20 * scale),
-        inputPointK.y - int(10 * scale), inputK_str);
+        inputPointK.y - int(20 * scale), inputK_str);
 
     // État de Q
     CString outputQ_str(Q ? "1" : "0");
