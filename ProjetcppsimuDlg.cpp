@@ -443,6 +443,10 @@ void CProjetcppsimuDlg::OnBnClickedButtonDel()
 			currentText.Delete(len - 5, 5);
 			compteur = compteur-1;
 		}
+		else if (len >= 3 && (currentText.Right(3) == _T("DFF") || currentText.Right(3) == _T("JKF"))) {
+			currentText.Delete(len - 3, 3);
+			compteur = compteur - 1;
+		}
 			
 		else currentText.Delete(len - 1, 1);      // supprime le dernier caractère}
 		
