@@ -125,7 +125,7 @@ void JKFlipFlop::draw(CClientDC& dc, float scale)
     CString outputQ_str(Q ? "1" : "0");
     dc.SetTextColor(Q ? APP_COLOR_HIGH : APP_COLOR_LOW);
     dc.TextOut(outputPointQ.x + int(10 * scale),
-        outputPointQ.y - int(10 * scale), outputQ_str);
+        outputPointQ.y - int(20 * scale), outputQ_str);
 
     dc.SelectObject(oldFont);
 }

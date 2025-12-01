@@ -272,7 +272,6 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
 
     // NOUVEAU : Gestion de la bascule JK (JKF)
     if (expr->type == "JKF") {
-        // Extraire les 3 entrées
         LogicExpression* inputJ = expr->left;
         LogicExpression* inputK = nullptr;
         LogicExpression* inputCLK = nullptr;
@@ -282,7 +281,6 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
             inputCLK = expr->right->right;
         }
 
-        // Détecter si les trois branches sont simples
         bool jIsSimple = (inputJ && (inputJ->type == "VAR" ||
             (inputJ->type == "NOT" && inputJ->left && inputJ->left->type == "VAR")));
         bool kIsSimple = (inputK && (inputK->type == "VAR" ||
@@ -293,16 +291,14 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         int jCenterY, kCenterY, clkCenterY;
 
         if (jIsSimple && kIsSimple && clkIsSimple) {
-            // Utiliser l'espacement minimal standard pour 3 entrées
             int simpleSpacing = int(50 * gateScale);
             if (simpleSpacing < 25) simpleSpacing = 25;
 
-            jCenterY = adjustedY - simpleSpacing;        // J en haut
-            clkCenterY = adjustedY;                       // CLK au milieu
-            kCenterY = adjustedY + simpleSpacing;         // K en bas
+            jCenterY = adjustedY - simpleSpacing;
+            clkCenterY = adjustedY;
+            kCenterY = adjustedY + simpleSpacing;
         }
         else {
-            // Cas complexe
             int jHeight = calculateSubtreeHeight(inputJ);
             int kHeight = calculateSubtreeHeight(inputK);
             int clkHeight = calculateSubtreeHeight(inputCLK);
@@ -332,38 +328,30 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         jkf.computeQ();
         jkf.draw(*dc, calculateGateScale());
 
-        // Dessiner les connexions pour l'entrée J
-        CPoint jInput = drawExpression(inputJ, level + 1, jCenterY, 0);
-        CPoint jInputPoint = jkf.getInputPointJ();
+        int inputOffsetX = int(60 * gateScale);
+        if (inputOffsetX < 30) inputOffsetX = 30;
 
-        int midXJ = (jInput.x + jInputPoint.x) / 2;
-        dc->MoveTo(jInput);
-        dc->LineTo(midXJ, jInput.y);
-        dc->LineTo(midXJ, jInputPoint.y);
-        dc->LineTo(jInputPoint);
+        auto drawConnection = [&](CPoint from, CPoint to, int extraOffsetX = 0) {
+            int midX = (from.x + to.x) / 2 + extraOffsetX;
+            dc->MoveTo(from);
+            dc->LineTo(midX, from.y);
+            dc->LineTo(midX, to.y);
+            dc->LineTo(to);
+            };
 
-        // Dessiner les connexions pour l'entrée K
-        CPoint kInput = drawExpression(inputK, level + 1, kCenterY, 0);
-        CPoint kInputPoint = jkf.getInputPointK();
+        // Décalage horizontal supplémentaire pour J
+        CPoint jInput = drawExpression(inputJ, level + 1, jCenterY, -inputOffsetX);
+        drawConnection(jInput, jkf.getInputPointJ(), 10); // Décalage à droite de la barre verticale
 
-        int midXK = (kInput.x + kInputPoint.x) / 2;
-        dc->MoveTo(kInput);
-        dc->LineTo(midXK, kInput.y);
-        dc->LineTo(midXK, kInputPoint.y);
-        dc->LineTo(kInputPoint);
-
-        // Dessiner les connexions pour l'entrée CLK
         CPoint clkInput = drawExpression(inputCLK, level + 1, clkCenterY, 0);
-        CPoint clkInputPoint = jkf.getInputPointCLK();
+        drawConnection(clkInput, jkf.getInputPointCLK());
 
-        int midXCLK = (clkInput.x + clkInputPoint.x) / 2;
-        dc->MoveTo(clkInput);
-        dc->LineTo(midXCLK, clkInput.y);
-        dc->LineTo(midXCLK, clkInputPoint.y);
-        dc->LineTo(clkInputPoint);
+        CPoint kInput = drawExpression(inputK, level + 1, kCenterY, inputOffsetX);
+        drawConnection(kInput, jkf.getInputPointK());
 
         return jkf.getOutputPointQ();
     }
+
 
     // Gestion de la bascule D (DFF)
     if (expr->type == "DFF") {

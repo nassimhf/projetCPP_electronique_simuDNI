@@ -9,6 +9,8 @@ void ExpressionParser::removeSpaces() {
     expression.erase(remove(expression.begin(), expression.end(), ' '), expression.end());
 }
 
+
+
 bool ExpressionParser::validateExpression() {
 
     // VÉRIFICATION FICHIER VIDE
@@ -17,6 +19,11 @@ bool ExpressionParser::validateExpression() {
         errorMessage = "ERREUR : Le fichier est vide !\n\nVeuillez entrer une expression logique valide.";
         hasError = true;
         return false;
+    }
+
+    for (char& c : expression) {
+        if (c >= 'a' && c <= 'z')
+            c = c - 'a' + 'A';
     }
 
     // Vérifier si l'expression ne contient que des espaces/tabulations/retours à la ligne
@@ -40,7 +47,9 @@ bool ExpressionParser::validateExpression() {
         char c = expression[i];
 
         // Caractères autorisés: lettres majuscules, parenthèses, espaces, virgule (pour DFF et JKF)
-        bool isValid = (c >= 'A' && c <= 'Z') ||
+        bool isValid =
+            (c >= 'A' && c <= 'Z') ||
+            (c >= 'a' && c <= 'z') || 
             c == '(' || c == ')' || c == ',' ||
             c == ' ' || c == '\t' || c == '\n' || c == '\r';
 
@@ -91,7 +100,7 @@ bool ExpressionParser::validateExpression() {
     // Retirer les mots-clés pour ne garder que les variables
     // IMPORTANT : Retirer JKF et DFF EN PREMIER avant AND pour éviter confusion
     size_t found;
-    while ((found = tempExpr.find("JKF")) != string::npos) {
+    while ((found = tempExpr.find("JKF") ) != string::npos) {
         tempExpr.replace(found, 3, "   ");
     }
     while ((found = tempExpr.find("DFF")) != string::npos) {
