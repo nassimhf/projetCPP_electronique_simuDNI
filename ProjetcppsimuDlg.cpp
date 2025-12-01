@@ -348,13 +348,7 @@ void CProjetcppsimuDlg::OnBnClickedButtonC() /////////////
 void CProjetcppsimuDlg::OnEnChangeEditEq() ////////////////
 {
 
-	
-	
-
 }
-
-
-
 
 void CProjetcppsimuDlg::OnBnClickedButtonOr()
 {
@@ -443,8 +437,8 @@ void CProjetcppsimuDlg::OnBnClickedButtonDel()
 			currentText.Delete(len - 5, 5);
 			compteur = compteur-1;
 		}
-		else if (len >= 3 && (currentText.Right(3) == _T("DFF") || currentText.Right(3) == _T("JKF"))) {
-			currentText.Delete(len - 3, 3);
+		else if (len >= 4 && (currentText.Right(4) == _T(" DFF") || currentText.Right(4) == _T(" JKF"))) {
+			currentText.Delete(len - 4, 4);
 			compteur = compteur - 1;
 		}
 			
