@@ -145,12 +145,6 @@ void MainScreen::OnPaint()
 	chrono.setTimeScale(timeScale);  // 0.5 pixel = 1ms
 
 
-	//CString msg;
-	//msg.Format(_T("gateScale = %f"), drawer.calculateGateScale());  // %d convertit true → 1, false → 0
-
-	//AfxMessageBox(msg);
-
-
 	chrono.setStates(resultVector, times);
 	chrono.draw(&dc);
 	
@@ -202,3 +196,6 @@ void MainScreen::OnBnClickedOk()
 	// TODO: ajoutez ici le code de votre gestionnaire de notification de contrôle
 	CDialogEx::OnOK();
 }
+
+
+

@@ -34,6 +34,7 @@
 #define IDC_BUTTON1                     1016
 #define IDC_BUTTON_PATH                 1016
 #define IDC_Restart                     1016
+#define IDC_BUTTON_TruthTable           1016
 #define IDC_DESC                        1019
 #define IDC_STATIC_5                    1021
 #define IDC_EDIT_MUL                    1024

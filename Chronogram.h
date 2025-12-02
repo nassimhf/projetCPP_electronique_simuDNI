@@ -1,6 +1,22 @@
 // Chronogram.h
+
+//La classe Chronogram permet de représenter et dessiner un chronogramme 
+//logique d’un signal numérique. Elle utilise un vecteur de structures ChronoState
+//pour stocker les états du signal et leur durée. La classe fournit des méthodes 
+// pour ajouter, modifier ou effacer les états, ainsi que pour configurer la position, la hauteur,
+//l’échelle de temps et les couleurs du chronogramme.
+// La méthode draw permet d’afficher le chronogramme.
+
+
+
+
 #ifndef CHRONOGRAM_H
 #define CHRONOGRAM_H
+
+
+
+
+
 
 #include <afxwin.h>
 #include <vector>

@@ -1,3 +1,12 @@
+// La classe MainScreen dérive de CDialogEx et représente la fenêtre principale 
+// de l'application. Elle gère l'affichage et l'interaction avec l'utilisateur, 
+// y compris le dessin des chronogrammes via la classe Chronogram, la gestion 
+// des expressions logiques et des fichiers associés, ainsi que le déclenchement 
+// des actions liées aux boutons (restart, retour, OK). 
+// Elle fournit des méthodes pour initialiser la boîte de dialogue, transférer 
+// les données du chronogramme et gérer les événements utilisateur.
+
+
 #pragma once
 #include "afxdialogex.h"
 #include <string>

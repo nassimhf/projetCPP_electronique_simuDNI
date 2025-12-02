@@ -618,6 +618,5 @@ void CProjetcppsimuDlg::OnBnClickedButtonVirg()
 		m_editZone.GetWindowText(currentText);   // récupère le texte actuel
 		currentText += _T(",");
 		m_editZone.SetWindowText(currentText);
-		compteur++;
 	}
 }

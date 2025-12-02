@@ -1,3 +1,10 @@
+// La classe FileReader permet de lire des fichiers contenant des données de signaux
+// et des délais associés. Elle stocke les points d'entrée dans un vecteur de structures
+// InputDataVector et les délais dans un vecteur d'entiers. 
+// La méthode readFile() lit le fichier et remplit ces vecteurs, tandis que
+// getPoints() et getDelays() permettent d'accéder aux données lues.
+
+
 #pragma once
 #include <string>
 #include <vector>

@@ -1,6 +1,16 @@
 #pragma once
 #include <afxwin.h>
 
+// La classe JKFlipFlop représente une bascule JK avec ses entrées J, K et CLK,
+// et sa sortie Q. Elle gère l’état précédent de l’horloge pour détecter les fronts montants
+// et met à jour la sortie selon les règles de la bascule JK.
+// La classe fournit des méthodes pour définir la position graphique de la bascule,
+// obtenir ou modifier ses entrées et sa sortie, et dessiner le symbole du flip-flop
+// dans un contexte MFC via draw.
+// Elle inclut également des points pour connecter visuellement les entrées et la sortie
+// dans un schéma.
+
+
 class JKFlipFlop
 {
 private:
