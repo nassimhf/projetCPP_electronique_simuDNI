@@ -69,7 +69,9 @@ Un projet modulaire en C++/MFC permettant de simuler des circuits logiques, d’
 ### ✔ Analyseur d'expressions  
 - Support d'expressions complexes :  
   `X AND (Y OR NOT Z)`
+
   `DFF(X,Y)` : X représente D et Y représente le signal d'horloge
+
   `JKF(X,Y,Z)` : X représente J et Y représente le signal d'horloge,Z représente K
 
 - Construction d’un arbre syntaxique  
