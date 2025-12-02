@@ -11,14 +11,14 @@ class ExpressionParser {
 private:
     string expression;
     size_t pos;
-    string errorMessage;  // ✅ NOUVEAU : stocker le message d'erreur
-    bool hasError;        // ✅ NOUVEAU : indicateur d'erreur
+    string errorMessage;  //stocker le message d'erreur
+    bool hasError;        //indicateur d'erreur
 
     void removeSpaces();
     LogicExpression* parseExpression();
     LogicExpression* parseTerm();
     string getOperator();
-    bool validateExpression();  // ✅ NOUVEAU : validation
+    bool validateExpression();  //validation
 
 public:
     ExpressionParser(string expr);
