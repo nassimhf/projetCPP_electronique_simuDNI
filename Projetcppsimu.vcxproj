@@ -190,7 +190,6 @@
     <ClInclude Include="ExpressionParser.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="InputData.h" />
     <ClInclude Include="JKFlipFlop.h" />
     <ClInclude Include="LogicExpression.h" />
     <ClInclude Include="MainScreen.h" />
@@ -211,7 +210,6 @@
     <ClCompile Include="DFlipFlop.cpp" />
     <ClCompile Include="ExpressionParser.cpp" />
     <ClCompile Include="FileReader.cpp" />
-    <ClCompile Include="InputData.cpp" />
     <ClCompile Include="JKFlipFlop.cpp" />
     <ClCompile Include="LogicExpression.cpp" />
     <ClCompile Include="MainScreen.cpp" />

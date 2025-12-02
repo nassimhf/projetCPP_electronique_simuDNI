@@ -6,7 +6,6 @@
 #include <string>
 #include <map>
 #include "LogicExpression.h"
-#include "InputData.h"
 #include "AndGate.h"
 #include "OrGate.h"
 #include "XorGate.h"

@@ -16,13 +16,7 @@ private:
     CPoint inputPointCLK;
     CPoint outputPointQ;
 
-    // Pour gérer les connexions entre portes
-    JKFlipFlop* inputGateJ;
-    JKFlipFlop* inputGateK;
-    JKFlipFlop* inputGateCLK;
-    bool isInputJVariable;
-    bool isInputKVariable;
-    bool isInputCLKVariable;
+ 
 
 public:
     JKFlipFlop();
@@ -44,15 +38,5 @@ public:
     CPoint getInputPointK() const;
     CPoint getInputPointCLK() const;
 
-    // Méthodes de connexion
-    void connectInputJGate(JKFlipFlop* gate);
-    void connectInputKGate(JKFlipFlop* gate);
-    void connectInputCLKGate(JKFlipFlop* gate);
-    void setInputJAsVariable(bool val);
-    void setInputKAsVariable(bool val);
-    void setInputCLKAsVariable(bool val);
-
-    // Calcul et évaluation
-    void computeQ();
-    bool evaluate();
+ 
 };

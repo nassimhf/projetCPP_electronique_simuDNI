@@ -178,13 +178,11 @@ void MainScreen::OnPaint()
 			DrawSeparatorWithLabel(&dc, separatorY, rect.Width() - 20, _T("CHRONOGRAMME"));
 
 
-			Sleep(times[i]* multiplicateur);
+			if (multiplicateur < 0) multiplicateur = 1;
+			int delay_us = times[i] * multiplicateur * 0.001;
+			Sleep(delay_us);
 		}
-
-	
 	}
-
-
 }
 // gestionnaires de messages de MainScreen
 void MainScreen::OnBnClickedRestart()

@@ -10,10 +10,8 @@ DFlipFlop::DFlipFlop()
     CLK = false;
     Q = false;
     previousCLK = false;
-    inputGateD = nullptr;
-    inputGateCLK = nullptr;
-    isInputDVariable = false;
-    isInputCLKVariable = false;
+   
+  
 }
 
 void DFlipFlop::setStartPoint(CPoint pt)
@@ -107,11 +105,6 @@ void DFlipFlop::draw(CClientDC& dc, float scale)
     dc.TextOut(inputPointCLK.x - int(20 * scale),
         inputPointCLK.y - int(20 * scale), inputCLK_str);
 
-    // État de Q
-    CString outputQ_str(Q ? "1" : "0");
-    dc.SetTextColor(Q ? APP_COLOR_HIGH : APP_COLOR_LOW);
-    dc.TextOut(outputPointQ.x + int(10 * scale),
-        outputPointQ.y - int(20 * scale), outputQ_str);
 
     dc.SelectObject(oldFont);
 }
@@ -126,4 +119,3 @@ CPoint DFlipFlop::getOutputPointQ() const { return outputPointQ; }
 CPoint DFlipFlop::getInputPointD() const { return inputPointD; }
 CPoint DFlipFlop::getInputPointCLK() const { return inputPointCLK; }
 
-// NOUVELLES MÉTHODES

@@ -14,11 +14,7 @@ private:
     CPoint inputPointCLK;
     CPoint outputPointQ;
 
-    // Pour gérer les connexions entre portes
-    DFlipFlop* inputGateD;
-    DFlipFlop* inputGateCLK;
-    bool isInputDVariable;
-    bool isInputCLKVariable;
+   
 
 public:
     DFlipFlop();

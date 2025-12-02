@@ -325,7 +325,7 @@ CPoint SchemaDrawer::drawExpression(LogicExpression* expr, int level, int baseY,
         jkf.setJ(evaluateExpression(inputJ) ? 1 : 0);
         jkf.setK(evaluateExpression(inputK) ? 1 : 0);
         jkf.setCLK(evaluateExpression(inputCLK) ? 1 : 0);
-        jkf.computeQ();
+       
         jkf.draw(*dc, calculateGateScale());
 
         int inputOffsetX = int(60 * gateScale);

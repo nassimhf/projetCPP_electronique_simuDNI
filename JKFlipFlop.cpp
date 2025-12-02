@@ -11,12 +11,7 @@ JKFlipFlop::JKFlipFlop()
     CLK = false;
     Q = false;
     previousCLK = false;
-    inputGateJ = nullptr;
-    inputGateK = nullptr;
-    inputGateCLK = nullptr;
-    isInputJVariable = false;
-    isInputKVariable = false;
-    isInputCLKVariable = false;
+ 
 }
 
 void JKFlipFlop::setStartPoint(CPoint pt)
@@ -143,89 +138,3 @@ CPoint JKFlipFlop::getInputPointJ() const { return inputPointJ; }
 CPoint JKFlipFlop::getInputPointK() const { return inputPointK; }
 CPoint JKFlipFlop::getInputPointCLK() const { return inputPointCLK; }
 
-// NOUVELLES MÉTHODES
-void JKFlipFlop::connectInputJGate(JKFlipFlop* gate) {
-    inputGateJ = gate;
-    isInputJVariable = false;
-}
-
-void JKFlipFlop::connectInputKGate(JKFlipFlop* gate) {
-    inputGateK = gate;
-    isInputKVariable = false;
-}
-
-void JKFlipFlop::connectInputCLKGate(JKFlipFlop* gate) {
-    inputGateCLK = gate;
-    isInputCLKVariable = false;
-}
-
-void JKFlipFlop::setInputJAsVariable(bool val) {
-    isInputJVariable = true;
-    J = val;
-}
-
-void JKFlipFlop::setInputKAsVariable(bool val) {
-    isInputKVariable = true;
-    K = val;
-}
-
-void JKFlipFlop::setInputCLKAsVariable(bool val) {
-    isInputCLKVariable = true;
-    CLK = val;
-}
-
-void JKFlipFlop::computeQ()
-{
-    // Détection du front montant (transition 0 -> 1)
-    if (CLK && !previousCLK) {
-        // Table de vérité de la bascule JK sur front montant :
-        // J=0, K=0 : Q garde sa valeur (maintien)
-        // J=0, K=1 : Q = 0 (reset)
-        // J=1, K=0 : Q = 1 (set)
-        // J=1, K=1 : Q = !Q (toggle/basculement)
-
-        if (!J && !K) {
-            // Maintien : Q garde sa valeur (ne rien faire)
-        }
-        else if (!J && K) {
-            // Reset
-            Q = false;
-        }
-        else if (J && !K) {
-            // Set
-            Q = true;
-        }
-        else if (J && K) {
-            // Toggle
-            Q = !Q;
-        }
-    }
-    // Sinon Q garde sa valeur
-
-    // Mettre à jour l'état précédent de l'horloge
-    previousCLK = CLK;
-}
-
-// ÉVALUATION RÉCURSIVE
-bool JKFlipFlop::evaluate()
-{
-    // Si entrée J n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInputJVariable && inputGateJ != nullptr) {
-        J = inputGateJ->evaluate();
-    }
-
-    // Si entrée K n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInputKVariable && inputGateK != nullptr) {
-        K = inputGateK->evaluate();
-    }
-
-    // Si entrée CLK n'est pas une variable, récupérer depuis la porte connectée
-    if (!isInputCLKVariable && inputGateCLK != nullptr) {
-        CLK = inputGateCLK->evaluate();
-    }
-
-    // Calculer la sortie Q
-    computeQ();
-
-    return Q;
-}
