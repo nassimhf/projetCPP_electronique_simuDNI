@@ -61,13 +61,17 @@ Un projet modulaire en C++/MFC permettant de simuler des circuits logiques, d’
 # ⚙️ Fonctionnalités actuelles
 
 ### ✔ Portes logiques  
-- AND, OR, XOR, NOT  
+- AND, OR, XOR, NOT
+- Bascule D, JK
 - Gestion dynamique des entrées  
 - Propagation automatique des sorties  
 
 ### ✔ Analyseur d'expressions  
 - Support d'expressions complexes :  
-  `A AND (B OR NOT C)`  
+  `X AND (Y OR NOT Z)`
+  `DFF(X,Y)` : X représente D et Y représente le signal d'horloge
+  `JKF(X,Y,Z)` : X représente J et Y représente le signal d'horloge,Z représente K
+
 - Construction d’un arbre syntaxique  
 - Contrôle des erreurs de syntaxe
 
