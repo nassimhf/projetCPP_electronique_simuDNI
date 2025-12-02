@@ -15,9 +15,7 @@ Un projet modulaire en C++/MFC permettant de simuler des circuits logiques, d’
 
 <br>
 
-<p align="center">
-  <img width="320px" src="https://cdn-icons-png.flaticon.com/512/3081/3081785.png" alt="Logo Circuit Logique">
-</p>
+
 
 ---
 
