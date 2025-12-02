@@ -104,14 +104,16 @@ Un projet modulaire en C++/MFC permettant de simuler des circuits logiques, d’
 1. **Saisir une fonction logique**  
    Exemple :  
    `A AND (B OR NOT C)`
+   Pour la bascule D, la syntaxe a utiliser est DFF(X,Y) ici X pour D et Y pour CLK.
+   Pour la bascule JK, la syntaxe a utiliser est JKF(X,Y,Z) ici X pour J, Y pour K et Z pour CLK.
 
-2. **Choisir un fichier d’entrée**  
+3. **Choisir un fichier d’entrée**  
    Contenant les valeurs et les délais.
 
-3. **Choisir un multiplicateur de temps**  
+4. **Choisir un multiplicateur de temps**  
    Pour ajuster l’échelle du chronogramme.
 
-4. **Lancer la simulation**  
+5. **Lancer la simulation**  
    → Le schéma se dessine  
    → Le chronogramme s’affiche automatiquement
 
