@@ -29,6 +29,8 @@ Un projet modulaire en C++/MFC permettant de simuler des circuits logiques, d’
 │   OrGate.h/.cpp
 │   XorGate.h/.cpp
 │   NotGate.h/.cpp
+|   JKFlipFlop.h/.cpp
+|   DFlipFlop.h/.cpp  
 │
 ├── Parsing/
 │   LogicExpression.h/.cpp   # Arbre d'expression logique
