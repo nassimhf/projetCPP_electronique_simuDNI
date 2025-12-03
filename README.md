@@ -112,7 +112,7 @@ Un projet modulaire en C++/MFC permettant de simuler des circuits logiques, d’
    Contenant les valeurs et les délais.
 
 4. **Choisir un multiplicateur de temps**  
-   Pour ajuster l’échelle du chronogramme.
+   Permet de visualiser l'avancement de l'evaluation de la fonction logique.
 
 5. **Lancer la simulation**  
    → Le schéma se dessine  
